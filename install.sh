@@ -217,6 +217,117 @@ EOF
 }
 
 #######################################
+# Dependency Management
+#######################################
+
+# Stage-based dependency ordering
+# Services are installed in stages to ensure proper dependencies
+
+# Stage 1: Core (prerequisites - always installed first)
+STAGE1_CORE=("docker" "portainer" "traefik")
+
+# Stage 2: Media Automation (arr stack - base for media servers)
+STAGE2_MEDIA_ARR=("sonarr" "radarr" "lidarr")
+
+# Stage 3: Media Servers (require arr stack)
+STAGE3_MEDIA_SERVERS=("jellyfin")
+
+# Stage 4: Request Management (needs arr stack)
+STAGE4_REQUESTS=("jellyseerr")
+
+# Stage 5: Dashboard (needs services running)
+STAGE5_DASHBOARD=("homepage")
+
+# Stage 6: Monitoring
+STAGE6_MONITORING=("uptime-kuma" "grafana" "ntfy")
+
+# Stage 7: Security
+STAGE7_SECURITY=("vaultwarden" "authelia" "adguard")
+
+# Stage 8: Storage & Productivity
+STAGE8_STORAGE=("nextcloud" "minio" "syncthing")
+
+# Stage 9: AI
+STAGE9_AI=("ollama" "openwebui")
+
+# All stages in order
+ALL_STAGES=(
+    "STAGE1_CORE"
+    "STAGE2_MEDIA_ARR"
+    "STAGE3_MEDIA_SERVERS"
+    "STAGE4_REQUESTS"
+    "STAGE5_DASHBOARD"
+    "STAGE6_MONITORING"
+    "STAGE7_SECURITY"
+    "STAGE8_STORAGE"
+    "STAGE9_AI"
+)
+
+# Dependency graph: service -> services it depends on
+declare -A DEPENDENCIES=(
+    [jellyfin]="sonarr radarr"
+    [jellyseerr]="sonarr radarr"
+    [homepage]="traefik"
+)
+
+# Resolve dependencies for a service
+get_dependencies() {
+    local service=$1
+    local deps="${DEPENDENCIES[$service]}"
+    echo "$deps"
+}
+
+# Check if a service is in a specific stage
+service_in_stage() {
+    local service=$1
+    local stage_var=$2
+    local stage_array=(${!stage_var})
+    for s in "${stage_array[@]}"; do
+        [[ "$s" == "$service" ]] && return 0
+    done
+    return 1
+}
+
+# Get stage for a service
+get_service_stage() {
+    local service=$1
+    for stage in "${ALL_STAGES[@]}"; do
+        local stage_array=(${!stage})
+        for s in "${stage_array[@]}"; do
+            [[ "$s" == "$service" ]] && echo "$stage" && return 0
+        done
+    done
+    echo "STAGE_UNKNOWN"
+}
+
+# Sort services by dependency stage
+sort_by_dependencies() {
+    local services="$1"
+    local sorted=""
+    
+    # Process each stage in order
+    for stage in "${ALL_STAGES[@]}"; do
+        local stage_array=(${!stage})
+        for s in $services; do
+            for stage_svc in "${stage_array[@]}"; do
+                [[ "$s" == "$stage_svc" ]] && sorted="$sorted $s"
+            done
+        done
+    done
+    
+    echo "$sorted"
+}
+
+log_stage() {
+    local stage_num=$1
+    local stage_name=$2
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}  STAGE $stage_num: $stage_name${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+}
+
+#######################################
 # Service Menu
 #######################################
 
@@ -468,6 +579,11 @@ main() {
     echo ""
     if confirm "Would you like to select additional services?"; then
         select_services
+        
+        # Install services in dependency order
+        if [[ -n "$SELECTED_SERVICES" ]]; then
+            install_selected_services
+        fi
     fi
     
     echo ""
@@ -484,6 +600,122 @@ main() {
     echo "   2. Create admin user on first login"
     echo "   3. Add more services from Portainer → Stacks"
     echo ""
+}
+
+#######################################
+# Service Installation by Stage
+#######################################
+
+# Check if service is selected
+is_service_selected() {
+    local service=$1
+    for s in $SELECTED_SERVICES; do
+        [[ "$s" == "$service" ]] && return 0
+    done
+    return 1
+}
+
+# Install a single service from its compose file
+install_service() {
+    local service=$1
+    local compose_file="$SERVICE_DIR/${service}.yml"
+    
+    if [[ ! -f "$compose_file" ]]; then
+        log_warn "No compose file for $service"
+        return 1
+    fi
+    
+    # Check if already running
+    if docker ps --format '{{.Names}}' | grep -q "^${service}$"; then
+        log_info "$service already running"
+        return 0
+    fi
+    
+    log_info "Installing $service..."
+    
+    # Create temp compose with variables expanded
+    local temp_file=$(mktemp)
+    env DOMAIN="${DOMAIN:-localhost}" envsubst < "$compose_file" > "$temp_file"
+    
+    # Run docker compose
+    cd "$SERVICE_DIR"
+    docker compose -f "$temp_file" up -d
+    
+    rm -f "$temp_file"
+    log_success "$service installed"
+}
+
+# Install services by stage
+install_stage() {
+    local stage_var=$1
+    local stage_array=(${!stage_var})
+    local stage_num=$2
+    local stage_name=$3
+    
+    log_stage "$stage_num" "$stage_name"
+    
+    for service in "${stage_array[@]}"; do
+        if is_service_selected "$service"; then
+            # Check dependencies
+            local deps=$(get_dependencies "$service")
+            if [[ -n "$deps" ]]; then
+                log_info "$service depends on: $deps"
+                for dep in $deps; do
+                    if ! docker ps --format '{{.Names}}' | grep -q "^${dep}$"; then
+                        log_warn "Dependency $dep not running - $service may not work correctly"
+                    fi
+                done
+            fi
+            
+            install_service "$service"
+        else
+            log_info "Skipping $service (not selected)"
+        fi
+    done
+}
+
+# Main installation flow with stage-based ordering
+install_selected_services() {
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}  INSTALLING SERVICES${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}Installing in dependency order...${NC}"
+    echo ""
+    
+    # Core always gets installed first (traefik)
+    if is_service_selected "traefik"; then
+        log_stage "1" "CORE SERVICES"
+        install_service "traefik"
+    fi
+    
+    # Stage 2: Media ARR stack
+    install_stage STAGE2_MEDIA_ARR 2 "MEDIA AUTOMATION (arr stack)"
+    
+    # Stage 3: Media servers
+    install_stage STAGE3_MEDIA_SERVERS 3 "MEDIA SERVERS"
+    
+    # Stage 4: Request management
+    install_stage STAGE4_REQUESTS 4 "REQUEST MANAGEMENT"
+    
+    # Stage 5: Dashboard
+    install_stage STAGE5_DASHBOARD 5 "DASHBOARDS"
+    
+    # Stage 6: Monitoring
+    install_stage STAGE6_MONITORING 6 "MONITORING"
+    
+    # Stage 7: Security
+    install_stage STAGE7_SECURITY 7 "SECURITY"
+    
+    # Stage 8: Storage
+    install_stage STAGE8_STORAGE 8 "STORAGE & PRODUCTIVITY"
+    
+    # Stage 9: AI
+    install_stage STAGE9_AI 9 "AI SERVICES"
+    
+    echo ""
+    echo -e "${GREEN}All selected services installed!${NC}"
 }
 
 # Run main
