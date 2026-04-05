@@ -2,6 +2,29 @@
 
 One-command homelab setup with Docker, Portainer, Traefik, and OpenClaw.
 
+## Architecture Overview
+
+- Homelab runs inside an **Ubuntu Server VM** on Proxmox
+- All services run as **Docker containers** inside that VM
+- The installer runs *inside* the Ubuntu VM, not on Proxmox directly
+
+## Proxmox Setup Guide
+
+1. Install Proxmox VE on bare metal
+2. Create an Ubuntu Server 22.04 VM
+3. Pass through ZFS storage (PCI passthrough or NFS)
+4. Pass through USB devices if needed (disc ripper, etc.)
+5. SSH into the VM and run the installer
+
+## Storage Options
+
+- ZFS dataset → bind mount into containers
+- NFS mount → Docker volume → container
+
+## Hardware Pass-through
+
+- USB devices → Proxmox USB passthrough → VM
+
 ## Quick Start
 
 ```bash
