@@ -296,42 +296,106 @@ show_service_menu() {
     echo -e "${GREEN}=======================================${NC}"
 }
 
-# Simple menu using select
+# Better interactive menu with checkbox-style selection
 select_services() {
-    local selected=()
-    local options=("Traefik" "Jellyfin" "Sonarr" "Radarr" "Lidarr" "Jellyseerr" "Audiobookshelf" "AdGuard" "Vaultwarden" "Authelia" "Uptime Kuma" "Grafana" "ntfy" "Paperless" "Nextcloud" "MinIO" "Syncthing" "Ollama" "OpenWebUI" "Homepage")
-    
-    echo "Select services to install:"
+    clear
+    echo -e "${BLUE}=======================================${NC}"
+    echo -e "${BLUE}  HOMELAB SERVICE SELECTION${NC}"
+    echo -e "${BLUE}=======================================${NC}"
+    echo ""
+    echo "Toggle services with numbers (space to toggle, enter to confirm)"
     echo ""
     
-    local PS3="Enter number to toggle (0 to done): "
-    local result=""
+    # Define services with category
+    declare -a SERVICES=(
+        "traefik:Networking:Reverse proxy with automatic SSL"
+        "adguard:Networking:DNS-level ad blocking"
+        "jellyfin:Media:Media server for movies, TV, and music"
+        "sonarr:Media:TV show management"
+        "radarr:Media:Movie management"
+        "lidarr:Media:Music collection management"
+        "jellyseerr:Media:Media request management"
+        "vaultwarden:Security:Password manager"
+        "authelia:Security:Two-factor authentication portal"
+        "uptime-kuma:Monitoring:Self-hosted monitoring"
+        "grafana:Monitoring:Metrics dashboards"
+        "ntfy:Monitoring:Push notifications"
+        "nextcloud:Productivity:File sync and sharing"
+        "paperless:Productivity:Document management"
+        "minio:Storage:S3-compatible storage"
+        "syncthing:Storage:File synchronization"
+        "ollama:AI:Local AI models"
+        "openwebui:AI:AI model web interface"
+        "homepage:Dashboard:Homelab dashboard"
+    )
     
-    select service in "${options[@]}" "Done"; do
-        case $service in
-            "Done") break ;;
-            "")
-                log_warn "Invalid selection"
-                ;;
-            *)
-                if [[ " ${selected[*]} " =~ " $service " ]]; then
-                    selected=("${selected[@]/$service}")
-                    log_info "Removed: $service"
-                else
-                    selected+=("$service")
-                    log_info "Added: $service"
-                fi
-                ;;
-        esac
+    # Initialize selection array
+    declare -a SELECTED=()
+    for i in "${!SERVICES[@]}"; do
+        SELECTED[$i]=false
+    done
+    
+    local running=true
+    while $running; do
+        clear
+        echo -e "${BLUE}=======================================${NC}"
+        echo -e "${BLUE}  HOMELAB SERVICE SELECTION${NC}"
+        echo -e "${BLUE}=======================================${NC}"
+        echo ""
+        echo "Toggle services with numbers (0 to confirm)"
+        echo ""
+        
+        # Group by category
+        local current_cat=""
+        for i in "${!SERVICES[@]}"; do
+            IFS=':' read -r key cat desc <<< "${SERVICES[$i]}"
+            if [[ "$cat" != "$current_cat" ]]; then
+                echo -e "${YELLOW}$cat${NC}"
+                current_cat="$cat"
+            fi
+            local marker="[ ]"
+            if [[ "${SELECTED[$i]}" == "true" ]]; then
+                marker="${GREEN}[✓]${NC}"
+            fi
+            printf "  %2d) $marker %-15s - %s\n" "$i" "$key" "$desc"
+        done
+        
+        echo ""
+        echo -e "${GREEN}  0) CONFIRM SELECTION${NC}"
+        echo ""
+        read -p "Enter number to toggle: " choice
+        
+        if [[ "$choice" == "0" ]]; then
+            running=false
+        elif [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -lt "${#SERVICES[@]}" ]]; then
+            if [[ "${SELECTED[$choice]}" == "true" ]]; then
+                SELECTED[$choice]=false
+            else
+                SELECTED[$choice]=true
+            fi
+        else
+            log_warn "Invalid selection"
+            sleep 1
+        fi
+    done
+    
+    # Build selected services list
+    SELECTED_SERVICES=""
+    for i in "${!SERVICES[@]}"; do
+        if [[ "${SELECTED[$i]}" == "true" ]]; then
+            IFS=':' read -r key cat desc <<< "${SERVICES[$i]}"
+            SELECTED_SERVICES="$SELECTED_SERVICES $key"
+        fi
     done
     
     echo ""
-    echo "Selected services:"
-    for s in "${selected[@]}"; do
-        echo "  - $s"
+    echo -e "${GREEN}Selected services:${NC}"
+    for i in "${!SERVICES[@]}"; do
+        if [[ "${SELECTED[$i]}" == "true" ]]; then
+            IFS=':' read -r key cat desc <<< "${SERVICES[$i]}"
+            echo "  - $key"
+        fi
     done
-    
-    SELECTED_SERVICES="${selected[*]}"
 }
 
 #######################################

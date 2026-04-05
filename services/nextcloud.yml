@@ -1,0 +1,36 @@
+# Nextcloud Docker Compose
+# File sync and sharing, collaboration platform
+
+version: '3.8'
+
+services:
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - nextcloud-data:/var/www/html
+      - nextcloud-apps:/var/www/html/custom_apps
+      - nextcloud-config:/var/www/html/config
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.nextcloud.entryPoints=websecure"
+      - "traefik.http.routers.nextcloud.tls=true"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  nextcloud-data:
+    name: nextcloud-data
+  nextcloud-apps:
+    name: nextcloud-apps
+  nextcloud-config:
+    name: nextcloud-config

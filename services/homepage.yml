@@ -1,0 +1,31 @@
+# Homepage Docker Compose
+# Modern homelab dashboard
+
+version: '3.8'
+
+services:
+  homepage:
+    image: ghcr.io/benphelps/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - homepage-config:/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homepage.rule=Host(`home.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.homepage.entryPoints=web,websecure"
+      - "traefik.http.routers.homepage.tls=true"
+      - "traefik.http.services.homepage.loadbalancer.server.port=3000"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  homepage-config:
+    name: homepage-config

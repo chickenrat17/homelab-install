@@ -1,0 +1,30 @@
+# Open WebUI Docker Compose
+# User-friendly AI model interface
+
+version: '3.8'
+
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: openwebui
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - openwebui-data:/app/backend/data
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openwebui.rule=Host(`ai.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.openwebui.entryPoints=web,websecure"
+      - "traefik.http.routers.openwebui.tls=true"
+      - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  openwebui-data:
+    name: openwebui-data
