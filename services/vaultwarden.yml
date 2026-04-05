@@ -1,0 +1,36 @@
+# Vaultwarden Docker Compose
+# Self-hosted password manager (Bitwarden compatible)
+
+version: '3.8'
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+      - SIGNUPS_ALLOWED=false
+      - SMTP_HOST=smtp.example.com
+      - SMTP_PORT=587
+      - SMTP_FROM=noreply@example.com
+      - SMTP_USERNAME=
+      - SMTP_PASSWORD=
+    volumes:
+      - vaultwarden-data:/data
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vaultwarden.rule=Host(`vault.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.vaultwarden.entryPoints=websecure"
+      - "traefik.http.routers.vaultwarden.tls=true"
+      - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  vaultwarden-data:
+    name: vaultwarden-data
