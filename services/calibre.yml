@@ -1,0 +1,36 @@
+# Calibre Docker Compose
+# Web interface for ebook management
+
+version: '3.8'
+
+services:
+  calibre:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+    volumes:
+      - calibre-config:/config
+      - calibre-books:/books
+      - /mnt/media:/media:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.calibre.rule=Host(`calibre.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.calibre.entryPoints=websecure"
+      - "traefik.http.routers.calibre.tls=true"
+      - "traefik.http.services.calibre.loadbalancer.server.port=8083"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  calibre-config:
+    name: calibre-config
+  calibre-books:
+    name: calibre-books

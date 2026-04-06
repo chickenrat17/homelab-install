@@ -1,0 +1,36 @@
+# Navidrome Docker Compose
+# Modern music server and streamer
+
+version: '3.8'
+
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    restart: unless-stopped
+    environment:
+      - ND_PUID=1000
+      - ND_PGID=1000
+      - TZ=America/Chicago
+    volumes:
+      - navidrome-config:/config
+      - navidrome-data:/data
+      - /mnt/media:/media:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.navidrome.rule=Host(`music.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.navidrome.entryPoints=websecure"
+      - "traefik.http.routers.navidrome.tls=true"
+      - "traefik.http.services.navidrome.loadbalancer.server.port:4533"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  navidrome-config:
+    name: navidrome-config
+  navidrome-data:
+    name: navidrome-data

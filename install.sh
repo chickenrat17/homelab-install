@@ -230,7 +230,7 @@ STAGE1_CORE=("docker" "portainer" "traefik")
 STAGE2_MEDIA_ARR=("sonarr" "radarr" "lidarr")
 
 # Stage 3: Media Servers (require arr stack)
-STAGE3_MEDIA_SERVERS=("jellyfin")
+STAGE3_MEDIA_SERVERS=("jellyfin" "calibre" "navidrome")
 
 # Stage 4: Request Management (needs arr stack)
 STAGE4_REQUESTS=("jellyseerr")
@@ -339,6 +339,8 @@ declare -A SERVICES=(
     ["sonarr"]="TV show management"
     ["radarr"]="Movie management"
     ["lidarr"]="Music collection management"
+    ["calibre"]="Ebook management and reader"
+    ["navidrome"]="Music streaming server"
     ["jellyseerr"]="Request management for media"
     ["audiobookshelf"]="Audiobook server"
     ["tubearchivist"]="YouTube archive"
@@ -375,6 +377,8 @@ show_service_menu() {
     echo ""
     echo -e "${YELLOW}🎬 Media${NC}"
     echo "  [ ] Jellyfin         - Media server (free)"
+    echo "  [ ] Calibre          - Ebook management"
+    echo "  [ ] Navidrome        - Music streaming"
     echo "  [ ] Sonarr           - TV show management"
     echo "  [ ] Radarr           - Movie management"
     echo "  [ ] Lidarr           - Music collection"
@@ -424,6 +428,8 @@ select_services() {
         "traefik:Networking:Reverse proxy with automatic SSL"
         "adguard:Networking:DNS-level ad blocking"
         "jellyfin:Media:Media server for movies, TV, and music"
+        "calibre:Media:Ebook management and reader"
+        "navidrome:Media:Music streaming server"
         "sonarr:Media:TV show management"
         "radarr:Media:Movie management"
         "lidarr:Media:Music collection management"
