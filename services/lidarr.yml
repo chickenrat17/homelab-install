@@ -22,6 +22,7 @@ services:
       - "traefik.http.routers.lidarr.rule=Host(`lidarr.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.lidarr.entryPoints=websecure"
       - "traefik.http.routers.lidarr.tls=true"
+      - "traefik.http.routers.lidarr.middlewares=security-headers"
       - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
 
 networks:

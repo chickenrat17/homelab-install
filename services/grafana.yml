@@ -22,6 +22,7 @@ services:
       - "traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.grafana.entryPoints=websecure"
       - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.middlewares=security-headers"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
 networks:

@@ -23,6 +23,7 @@ services:
       - "traefik.http.routers.calibre.rule=Host(`calibre.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.calibre.entryPoints=websecure"
       - "traefik.http.routers.calibre.tls=true"
+      - "traefik.http.routers.calibre.middlewares=security-headers"
       - "traefik.http.services.calibre.loadbalancer.server.port=8083"
 
 networks:

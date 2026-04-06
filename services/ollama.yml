@@ -19,6 +19,7 @@ services:
       - "traefik.http.routers.ollama.rule=Host(`ollama.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.ollama.entryPoints=websecure"
       - "traefik.http.routers.ollama.tls=true"
+      - "traefik.http.routers.ollama.middlewares=security-headers"
       - "traefik.http.services.ollama.loadbalancer.server.port=11434"
 
 networks:

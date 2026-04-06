@@ -27,6 +27,7 @@ services:
       - "traefik.http.routers.adguard.rule=Host(`adguard.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.adguard.entryPoints=web,websecure"
       - "traefik.http.routers.adguard.tls=true"
+      - "traefik.http.routers.adguard.middlewares=security-headers"
       - "traefik.http.services.adguard.loadbalancer.server.port=3000"
 
 networks:
