@@ -12,6 +12,8 @@ services:
     volumes:
       - homepage-config:/config
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "3000:3000"
     networks:
       - proxy
     labels:
