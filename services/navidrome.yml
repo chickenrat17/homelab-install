@@ -23,7 +23,7 @@ services:
       - "traefik.http.routers.navidrome.entryPoints=websecure"
       - "traefik.http.routers.navidrome.tls=true"
       - "traefik.http.routers.navidrome.middlewares=security-headers"
-      - "traefik.http.services.navidrome.loadbalancer.server.port:4533"
+      - "traefik.http.services.navidrome.loadbalancer.server.port=4533"
 
 networks:
   proxy:
