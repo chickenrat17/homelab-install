@@ -2,6 +2,18 @@
 
 One-command homelab setup with Docker, Portainer, Traefik, and OpenClaw.
 
+## Quick Install
+
+```bash
+# Clone and run (inside Ubuntu VM)
+git clone https://github.com/chickenrat17/homelab-install.git ~/homelab-install
+sudo bash ~/homelab-install/install.sh
+
+# Or with curl:
+curl -sL https://github.com/chickenrat17/homelab-install/archive/refs/heads/master.tar.gz | tar -xz ~/homelab-install
+sudo bash ~/homelab-install/install.sh
+```
+
 ## Architecture Overview
 
 - Homelab runs inside an **Ubuntu Server VM** on Proxmox
