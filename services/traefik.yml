@@ -10,22 +10,22 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
+      - "9090:8080"
     environment:
       - TZ=America/Chicago
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - $HOMELAB_DIR/config/traefik/traefik.yml:/traefik.yml:ro
-      - $HOMELAB_DIR/config/traefik/acme.json:/acme.json
+      - /home/hallmikey/homelab-install/config/traefik/traefik.yml:/traefik.yml:ro
+      - /home/hallmikey/homelab-install/config/traefik/acme.json:/acme.json
       - traefik-log:/logs
-      - $HOMELAB_DIR/config/traefik/dynamic:/etc/traefik/dynamic:ro
+      - /home/hallmikey/homelab-install/config/traefik/dynamic:/etc/traefik/dynamic:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      - "traefik.http.services.traefik.loadbalancer.server.port=9090"
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/health"]
       interval: 30s
       timeout: 10s
       retries: 3

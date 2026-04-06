@@ -4,7 +4,7 @@
 
 services:
   calibre:
-    image: linuxserver/calibre-web:v0.6.25
+    image: linuxserver/calibre-web:latest
     container_name: calibre
     restart: unless-stopped
     environment:

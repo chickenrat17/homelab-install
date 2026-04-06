@@ -4,7 +4,7 @@
 
 services:
   samba:
-    image: d person/samba:latest
+    image: dperson/samba:latest
     container_name: samba
     restart: unless-stopped
     environment:

@@ -1,10 +1,9 @@
 # Sonarr Docker Compose
 # TV show management and automation
 
-
 services:
   sonarr:
-    image: linuxserver/sonarr:4.0.11
+    image: linuxserver/sonarr:develop
     container_name: sonarr
     restart: unless-stopped
     environment:
@@ -16,21 +15,11 @@ services:
       - /mnt/media:/media
     ports:
       - "8989:8989"
-    ports:
-      - "8989:8989"
-    ports:
-      - "8989:8989"
-    ports:
-      - "8989:8989"
-    ports:
-      - "8989:8989"
-    ports:
-      - "8989:8989"
     networks:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.sonarr.rule=Host(\`sonarr.\${DOMAIN:-localhost}\`)"
       - "traefik.http.routers.sonarr.entryPoints=websecure"
       - "traefik.http.routers.sonarr.tls=true"
       - "traefik.http.routers.sonarr.middlewares=security-headers"

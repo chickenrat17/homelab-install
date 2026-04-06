@@ -6,7 +6,7 @@
 
 - Homelab Services:
     - Traefik:
-        href: http://192.168.68.95:8080
+        href: http://192.168.68.95:9090/dashboard/
         description: Reverse Proxy & Dashboard
         icon: traefik.png
     - Portainer:

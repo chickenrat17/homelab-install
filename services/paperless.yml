@@ -9,17 +9,15 @@ services:
     restart: unless-stopped
     environment:
       - TZ=America/Chicago
-      - PAPERLESS_SECRET_KEY=${PAPERLESS_SECRET_KEY:-changeMe123!}
+      - PAPERLESS_SECRET_KEY=${PAPERLESS_SECRET_KEY:-ChangeMe123!}
       - PAPERLESS_DBHOST=${PAPERLESS_DBHOST:-postgres}
       - PAPERLESS_DBNAME=${PAPERLESS_DBNAME:-paperless}
       - PAPERLESS_DBUSER=${PAPERLESS_DBUSER:-paperless}
-      - PAPERLESS_DBPASS=${PAPERLESS_DBPASS:-changeMe123!}
+      - PAPERLESS_DBPASS=${PAPERLESS_DBPASS:-ChangeMe123!}
     volumes:
       - paperless-data:/usr/src/paperless/data
       - paperless-media:/usr/src/paperless/media
       - paperless-export:/usr/src/paperless/export
-    ports:
-      - "8000:8000"
     networks:
       - proxy
     labels:
