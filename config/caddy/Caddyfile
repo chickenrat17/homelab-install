@@ -5,17 +5,22 @@
     auto_https off
 }
 
-# PiHole Admin - replace homelab.local with your domain
-pihole.localhost {
+# PiHole Admin - proxy to PiHole container
+http://localhost:8081 {
     reverse_proxy http://192.168.68.95:8081
 }
 
-# Traefik Dashboard
-traefik.localhost {
+# Traefik Dashboard - proxy to Traefik container
+http://localhost:9090 {
     reverse_proxy http://192.168.68.95:9090
 }
 
-# Caddy Admin API
-caddy.localhost {
-    reverse_proxy http://localhost:8080
+# Caddy Admin API - proxy to Caddy's internal admin port
+http://localhost:2019 {
+    reverse_proxy http://localhost:2019
+}
+
+# Default response
+http:// {
+    respond "Caddy reverse proxy is running"
 }
