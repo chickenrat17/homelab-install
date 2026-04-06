@@ -25,7 +25,7 @@ services:
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.services.traefik.loadbalancer.server.port=9090"
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/"]
       interval: 30s
       timeout: 10s
       retries: 3
