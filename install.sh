@@ -618,13 +618,22 @@ main() {
     # Pre-flight checks
     check_root
     detect_os
-    
-    # Check for proxy network
-    if ! docker network inspect proxy >/dev/null 2>&1; then
-        log_error "Docker network 'proxy' does not exist. Run the full install first."
-        exit 1
+
+    # Install Docker if needed
+    if ! command -v docker &> /dev/null; then
+        install_docker
+    else
+        log_info "Docker already installed"
     fi
-    log_success "Proxy network exists"
+
+    # Create proxy network if needed
+    if ! docker network inspect proxy >/dev/null 2>&1; then
+        log_info "Creating proxy network..."
+        docker network create proxy >/dev/null 2>&1 || true
+        log_success "Proxy network created"
+    else
+        log_success "Proxy network exists"
+    fi
     
     # Check for .env file
     if [ ! -f "$HOMELAB_DIR/.env" ]; then
