@@ -20,7 +20,7 @@ services:
       - traefik-log:/logs
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(\`traefik.localhost\`)"
+      - "traefik.http.routers.dashboard.rule=Host(traefik.localhost)"
       - "traefik.http.routers.dashboard.service=api@internal"
 
 networks:
