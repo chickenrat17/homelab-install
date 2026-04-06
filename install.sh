@@ -759,7 +759,7 @@ install_service() {
     
     # Create temp compose with variables expanded
     local temp_file=$(mktemp)
-    env DOMAIN="${DOMAIN:-localhost}" envsubst < "$compose_file" > "$temp_file"
+    env DOMAIN="${DOMAIN:-localhost}" HOMELAB_DIR="${HOMELAB_DIR}" envsubst < "$compose_file" > "$temp_file"
     
     # Run docker compose with --remove-orphans to clean up orphaned containers
     cd "$SERVICE_DIR"
