@@ -1,0 +1,55 @@
+# Samba Docker Compose
+# Network file share for LAN access
+
+version: '3.8'
+
+services:
+  samba:
+    image: d person/samba:latest
+    container_name: samba
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+    volumes:
+      - samba-shares:/shares
+      - /mnt/media:/mnt/media:ro
+      - /mnt/photos:/mnt/photos:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.samba.rule=Host(`files.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.samba.entryPoints=websecure"
+      - "traefik.http.routers.samba.tls=true"
+      - "traefik.http.services.samba.loadbalancer.server.port=139"
+    # Expose ports for Windows/Mac/Linux file explorer access
+    ports:
+      - "139:139"
+      - "445:445"
+    command: >
+      --no[item]
+      --share-name=homelab-media
+      --path=/mnt/media
+      --readonly=yes
+      --guests-only=yes
+      --share-name=homelab-photos
+      --path=/mnt/photos
+      --readonly=yes
+      --guests-only=yes
+      --share-name=homelab-backups
+      --path=/shares
+      --browsable=yes
+      --writable=yes
+      --guests-only=no
+      --username=homelab
+      --password=${SAMBA_PASSWORD:-changeme}
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  samba-shares:
+    name: samba-shares

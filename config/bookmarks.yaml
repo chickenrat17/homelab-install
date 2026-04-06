@@ -22,3 +22,6 @@
     - name: Home Assistant
       href: "https://homeassistant.${DOMAIN:-localhost}"
       icon: home-assistant
+    - name: File Share (SMB)
+      href: "smb://files.${DOMAIN:-localhost}"
+      icon: folder
