@@ -1,0 +1,21 @@
+# Homepage Bookmarks
+# Links displayed on the Homepage dashboard
+
+- title: OpenClaw Chat
+  href: "https://web.telegram.org/"
+  description: "Chat with your homelab AI assistant"
+  icon: robot
+  provider: telegram
+
+- title: Homelab Services
+  description: "Self-hosted services"
+  links:
+    - name: Homepage
+      href: "https://home.${DOMAIN:-localhost}"
+      icon: home
+    - name: Keycloak
+      href: "https://keycloak.${DOMAIN:-localhost}"
+      icon: key
+    - name: Vaultwarden
+      href: "https://vault.${DOMAIN:-localhost}"
+      icon: lock

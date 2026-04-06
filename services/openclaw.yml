@@ -1,0 +1,45 @@
+# OpenClaw Docker Compose
+# Self-hosted AI agent for homelab operations
+
+version: '3.8'
+
+services:
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: openclaw
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+      # Telegram bot - set BOT_TOKEN from @BotFather
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      # Or Discord bot token
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      # Storage for workspace and memory
+      - OPENCLAW_STORAGE=/workspace
+    volumes:
+      # Workspace for files, configs, memory
+      - openclaw-workspace:/workspace
+      # Docker socket for container management
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # SSH access (optional)
+      - ~/.ssh:/home/openclaw/.ssh:ro
+      # Homelab services config (read-only for safety)
+      - ../services:/home/openclaw/homelab-install/services:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openclaw.rule=Host(`openclaw.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.openclaw.entryPoints=websecure"
+      - "traefik.http.routers.openclaw.tls=true"
+      # Optional: Keycloak forward auth (uncomment after Keycloak setup)
+      # - "traefik.http.middlewares.openclaw-auth.forwardauth.authURL=http://keycloak:8080/realms/homelab/protocol/openid-connect/auth"
+      - "traefik.http.services.openclaw.loadbalancer.server.port=3000"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  openclaw-workspace:
+    name: openclaw-workspace
