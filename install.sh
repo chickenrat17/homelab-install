@@ -186,8 +186,6 @@ install_traefik() {
     
     # Create docker-compose.yml for Traefik
     cat > "$CONFIG_DIR/traefik/docker-compose.yml" << 'EOF'
-version: '3.8'
-
 services:
   traefik:
     image: traefik:v3.0
