@@ -649,11 +649,11 @@ main() {
     fi
     log_success ".env file exists"
 
+    # Prompt for admin password first (required for validation)
+    prompt_admin_password
+    
     # Validate required environment variables
     validate_env_vars
-
-    # Prompt for admin password if not set
-    prompt_admin_password
     
     # Mode selection
     select_mode
