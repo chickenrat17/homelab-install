@@ -18,6 +18,13 @@ HOMELAB_DIR="$HOME/homelab-install"
 SERVICE_DIR="$HOMELAB_DIR/services"
 CONFIG_DIR="$HOMELAB_DIR/config"
 
+# Fix: Use SUDO_USER's home if running with sudo
+if [[ -n "$SUDO_USER" ]]; then
+    HOMELAB_DIR="/home/$SUDO_USER/homelab-install"
+    SERVICE_DIR="$HOMELAB_DIR/services"
+    CONFIG_DIR="$HOMELAB_DIR/config"
+fi
+
 #######################################
 # Utility Functions
 #######################################
