@@ -152,6 +152,9 @@ qm set <vm-id> -hostpci0 00:14.0,xtract=true
 ```bash
 # Run the installer
 sudo bash ~/homelab-install/install.sh
+
+# Post-install: Add services anytime
+bash ~/homelab-install/homelab-configure.sh
 ```
 
 ## What's Installed
@@ -162,15 +165,41 @@ sudo bash ~/homelab-install/install.sh
 
 ## Service Definitions
 
-Place Docker Compose files in `services/` folder:
-
 | Service | File | Description |
 |---------|------|-------------|
+| AdGuard | `services/adguard.yml` | DNS-level ad blocking |
+| Grafana | `services/grafana.yml` | Metrics visualization |
+| Homepage | `services/homepage.yml` | Dashboard |
 | Jellyfin | `services/jellyfin.yml` | Media server |
-| Vaultwarden | `services/vaultwarden.yml` | Password manager |
+| Keycloak | `services/keycloak.yml` | Identity management |
+| Lidarr | `services/lidarr.yml` | Music collection manager |
+| Nextcloud | `services/nextcloud.yml` | File sync/share |
+| Ntfy | `services/ntfy.yml` | Push notifications |
+| Ollama | `services/ollama.yml` | Local LLM runtime |
+| Open WebUI | `services/openwebui.yml` | ChatGPT-like UI for Ollama |
+| Radarr | `services/radarr.yml` | Movie collection manager |
+| Sonarr | `services/sonarr.yml` | TV series collection manager |
 | Uptime Kuma | `services/uptime-kuma.yml` | Monitoring |
+| Vaultwarden | `services/vaultwarden.yml` | Password manager |
 
 ## Adding More Services
+
+### Option 1: Interactive Menu (Recommended)
+
+Use the post-install configurator to add/remove services anytime:
+
+```bash
+bash ~/homelab-install/homelab-configure.sh
+```
+
+This provides an interactive menu to:
+- **Install** new services
+- **Remove** existing services
+- **Start/Stop/Restart** services
+- **View** service logs
+- Quick links to Portainer and Traefik dashboards
+
+### Option 2: Manual
 
 1. Copy a service compose file from `services/`
 2. Edit for your environment (paths, domain)
