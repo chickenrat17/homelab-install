@@ -29,6 +29,37 @@ fi
 # Utility Functions
 #######################################
 
+# Auto-detect host IP address
+auto_detect_ip() {
+    local ip=""
+    ip=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7}')
+    if [[ -z "$ip" ]]; then
+        ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+    fi
+    if [[ -z "$ip" ]]; then
+        ip=$(docker network inspect bridge 2>/dev/null | grep '"Gateway"' | awk -F'"' '{print $4}')
+    fi
+    echo "$ip"
+}
+
+# Prompt for host IP if auto-detection fails
+prompt_host_ip() {
+    local ip=$(auto_detect_ip)
+    if [[ -z "$ip" ]]; then
+        log_warn "Could not auto-detect host IP address"
+        read -p "Please enter your host's IP address on the local network: " ip
+        if [[ -z "$ip" ]]; then
+            log_error "IP address is required"
+            exit 1
+        fi
+        if ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            log_error "Invalid IP address format: $ip"
+            exit 1
+        fi
+    fi
+    echo "$ip"
+}
+
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
@@ -706,6 +737,19 @@ main() {
     if [ ! -f "$HOMELAB_DIR/.env" ]; then
         log_info ".env file not found. Creating with defaults..."
         cp "$HOMELAB_DIR/.env.example" "$HOMELAB_DIR/.env"
+        
+        # Auto-detect host IP and update .env if needed
+        local detected_ip=$(auto_detect_ip)
+        if [[ -z "$detected_ip" ]]; then
+            log_warn "Could not auto-detect host IP address"
+            read -p "Please enter your host's IP address: " detected_ip
+        fi
+        if grep -q "^IP=" "$HOMELAB_DIR/.env"; then
+            sed -i "s/^IP=.*/IP=$detected_ip/" "$HOMELAB_DIR/.env"
+        else
+            echo "IP=$detected_ip" >> "$HOMELAB_DIR/.env"
+        fi
+        log_success "Host IP: $detected_ip"
     fi
     log_success ".env file exists"
 
