@@ -10,7 +10,8 @@ git clone https://github.com/chickenrat17/homelab-install.git ~/homelab-install
 sudo bash ~/homelab-install/install.sh
 
 # Or with curl:
-curl -sL https://github.com/chickenrat17/homelab-install/archive/refs/heads/master.tar.gz | tar -xz ~/homelab-install
+curl -sL https://github.com/chickenrat17/homelab-install/archive/refs/heads/master.tar.gz | tar -xz -C ~/
+mv ~/homelab-install-master ~/homelab-install
 sudo bash ~/homelab-install/install.sh
 ```
 
