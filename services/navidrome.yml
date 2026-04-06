@@ -4,7 +4,7 @@
 
 services:
   navidrome:
-    image: deluan/navidrome:0.55.0
+    image: deluan/navidrome:develop
     container_name: navidrome
     restart: unless-stopped
     environment:
