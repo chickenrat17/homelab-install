@@ -19,7 +19,7 @@ services:
       - "traefik.http.routers.openwebui.rule=Host(`ai.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.openwebui.entryPoints=web,websecure"
       - "traefik.http.routers.openwebui.tls=true"
-      - "traefik.http.routers.openwebui.middlewares=security-headers"
+      - "traefik.http.routers.openwebui.middlewares=keycloak-auth,security-headers"
       - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
 
 networks:

@@ -21,7 +21,7 @@ services:
       - openclaw-workspace:/workspace
       # Docker socket for container management
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      # SSH access (optional)
+      # SSH access (optional) - WARNING: Mounting SSH keys grants container full key access to your server
       - ~/.ssh:/home/openclaw/.ssh:ro
       # Homelab services config (read-only for safety)
       - ../services:/home/openclaw/homelab-install/services:ro

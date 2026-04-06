@@ -567,6 +567,21 @@ main() {
     check_root
     detect_os
     
+    # Check for proxy network
+    if ! docker network inspect proxy >/dev/null 2>&1; then
+        log_error "Docker network 'proxy' does not exist. Run the full install first."
+        exit 1
+    fi
+    log_success "Proxy network exists"
+    
+    # Check for .env file
+    if [ ! -f "$HOMELAB_DIR/.env" ]; then
+        log_error ".env file not found at $HOMELAB_DIR/.env"
+        log_info "Copy .env.example to .env and configure before continuing."
+        exit 1
+    fi
+    log_success ".env file exists"
+    
     # Mode selection
     select_mode
     

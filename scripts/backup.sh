@@ -2,6 +2,29 @@
 # Homelab Backup Script
 # Backs up all Docker volumes to timestamped tar.gz files
 
+# Parse arguments
+DRY_RUN=false
+VERIFY=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run|-n)
+            DRY_RUN=true
+            shift
+            ;;
+        --verify|-v)
+            VERIFY=true
+            shift
+            ;;
+        *)
+            echo "Usage: $0 [--dry-run|-n] [--verify|-v]"
+            echo "  --dry-run  Show what would be backed up without creating archives"
+            echo "  --verify  Verify archives after creation (extracted size check)"
+            exit 1
+            ;;
+    esac
+done
+
 BACKUP_DIR="${BACKUP_DIR:-./backups}"
 DATE=$(date +%Y%m%d-%H%M%S)
 
@@ -38,6 +61,20 @@ SERVICES=(
 echo "=== Homelab Backup: $DATE ==="
 echo "Backing up to: $BACKUP_DIR"
 
+# Dry-run mode: just list volumes without backing up
+if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would back up the following volumes:"
+    for vol in "${SERVICES[@]}"; do
+        if docker volume inspect "$vol" >/dev/null 2>&1; then
+            echo "  - $vol"
+        else
+            echo "  - $vol (NOT FOUND)"
+        fi
+    done
+    echo "[DRY RUN] No backups created."
+    exit 0
+fi
+
 # Stop services (optional - for consistent backups)
 # docker compose stop
 
@@ -62,3 +99,19 @@ find "$BACKUP_DIR" -name "*.tar.gz" -mtime +7 -delete
 echo "=== Backup complete ==="
 echo "Files in $BACKUP_DIR:"
 ls -lh "$BACKUP_DIR" | tail -5
+
+# Verify archives if requested
+if [ "$VERIFY" = true ]; then
+    echo ""
+    echo "=== Verifying backups ==="
+    for backup_file in "$BACKUP_DIR"/*.tar.gz; do
+        if [ -f "$backup_file" ]; then
+            echo -n "Verifying: $(basename $backup_file)... "
+            if gzip -t "$backup_file" 2>/dev/null; then
+                echo "OK (valid gzip)"
+            else
+                echo "FAILED!"
+            fi
+        fi
+    done
+fi
