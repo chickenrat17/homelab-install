@@ -4,7 +4,7 @@
 
 services:
   ntfy:
-    image: binaries.ory.sh/ntfy:v2.6.0
+    image: jauderho/ntfy:latest
     container_name: ntfy
     restart: unless-stopped
     environment:

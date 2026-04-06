@@ -1,0 +1,41 @@
+# MinIO Docker Compose
+# S3-compatible storage server
+
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-changeMe123!}
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio.rule=Host(`minio.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.minio.entryPoints=websecure"
+      - "traefik.http.routers.minio.tls=true"
+      - "traefik.http.routers.minio.middlewares=security-headers"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+    healthcheck:
+      test: ["CMD", "mc", "admin", "health", "minio"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  minio-data:
+    name: minio-data

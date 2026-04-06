@@ -1,0 +1,43 @@
+# Syncthing Docker Compose
+# File synchronization
+
+
+services:
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: syncthing
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - syncthing-config:/var/lib/syncthing
+      - /mnt/media:/mnt/media:ro
+    ports:
+      - "8384:8384"
+      - "22000:22000"
+      - "21027:21027/udp"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.syncthing.rule=Host(`syncthing.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.syncthing.entryPoints=websecure"
+      - "traefik.http.routers.syncthing.tls=true"
+      - "traefik.http.routers.syncthing.middlewares=security-headers"
+      - "traefik.http.services.syncthing.loadbalancer.server.port=8384"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8384"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  syncthing-config:
+    name: syncthing-config

@@ -1,0 +1,49 @@
+# Paperless-NGX Docker Compose
+# Document management system
+
+
+services:
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+      - PAPERLESS_SECRET_KEY=${PAPERLESS_SECRET_KEY:-changeMe123!}
+      - PAPERLESS_DBHOST=${PAPERLESS_DBHOST:-postgres}
+      - PAPERLESS_DBNAME=${PAPERLESS_DBNAME:-paperless}
+      - PAPERLESS_DBUSER=${PAPERLESS_DBUSER:-paperless}
+      - PAPERLESS_DBPASS=${PAPERLESS_DBPASS:-changeMe123!}
+    volumes:
+      - paperless-data:/usr/src/paperless/data
+      - paperless-media:/usr/src/paperless/media
+      - paperless-export:/usr/src/paperless/export
+    ports:
+      - "8000:8000"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.paperless.rule=Host(`paperless.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.paperless.entryPoints=websecure"
+      - "traefik.http.routers.paperless.tls=true"
+      - "traefik.http.routers.paperless.middlewares=security-headers"
+      - "traefik.http.services.paperless.loadbalancer.server.port=8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  paperless-data:
+    name: paperless-data
+  paperless-media:
+    name: paperless-media
+  paperless-export:
+    name: paperless-export
