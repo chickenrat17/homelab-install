@@ -693,9 +693,18 @@ main() {
     echo -e "${GREEN}  INSTALLATION COMPLETE!${NC}"
     echo -e "${GREEN}=======================================${NC}"
     echo ""
+    local ip=$(hostname -I | awk '{print $1}')
     echo "📍 Access points:"
-    echo "   - Portainer:  https://$(hostname -I | awk '{print $1}'):9443"
-    echo "   - Traefik:    http://$(hostname -I | awk '{print $1}'):8080"
+    echo "   - Portainer:  https://${ip}:9443"
+    echo "   - Traefik:    http://${ip}:8080"
+    
+    # List running services with web interfaces
+    local services="homepage keycloak jellyseerr"
+    for svc in $services; do
+        if docker ps --format '{{.Names}}' | grep -q "^$svc$"; then
+            echo "   - ${svc}:      http://${ip}"
+        fi
+    done
     echo ""
     echo "📖 Next steps:"
     echo "   1. Accept Portainer SSL certificate (click Advanced → Proceed)"
@@ -758,13 +767,13 @@ install_stage() {
     
     for service in "${stage_array[@]}"; do
         if is_service_selected "$service"; then
-            # Check dependencies
+            # Check dependencies - auto-install missing ones
             local deps=$(get_dependencies "$service")
             if [[ -n "$deps" ]]; then
-                log_info "$service depends on: $deps"
                 for dep in $deps; do
                     if ! docker ps --format '{{.Names}}' | grep -q "^${dep}$"; then
-                        log_warn "Dependency $dep not running - $service may not work correctly"
+                        log_info "Installing missing dependency: $dep"
+                        install_service "$dep"
                     fi
                 done
             fi
