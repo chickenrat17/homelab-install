@@ -218,11 +218,30 @@ services:
       - $HOMELAB_DIR/config/traefik/traefik.yml:/traefik.yml:ro
       - $HOMELAB_DIR/config/traefik/acme.json:/acme.json
       - traefik-log:/logs
+      - $HOMELAB_DIR/config/traefik/dynamic:/etc/traefik/dynamic:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
 
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 networks:
   proxy:
     external: true
