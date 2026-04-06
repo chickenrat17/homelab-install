@@ -10,6 +10,8 @@ services:
       - TZ=America/Chicago
     volumes:
       - jellyseerr-config:/app/config
+    ports:
+      - "5055:5055"
     networks:
       - proxy
     labels:

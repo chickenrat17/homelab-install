@@ -14,6 +14,8 @@ services:
     volumes:
       - lidarr-config:/config
       - /mnt/media:/media
+    ports:
+      - "8686:8686"
     networks:
       - proxy
     labels:

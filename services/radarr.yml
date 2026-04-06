@@ -14,6 +14,8 @@ services:
     volumes:
       - radarr-config:/config
       - /mnt/media:/media
+    ports:
+      - "7878:7878"
     networks:
       - proxy
     labels:
