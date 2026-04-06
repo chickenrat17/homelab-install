@@ -533,7 +533,7 @@ select_services() {
         echo -e "${BLUE}  HOMELAB SERVICE SELECTION${NC}"
         echo -e "${BLUE}=======================================${NC}"
         echo ""
-        echo "Toggle services with numbers (d to confirm)"
+        echo "Toggle services with numbers (a for all, d to confirm)"
         echo ""
         
         # Group by category
@@ -556,7 +556,11 @@ select_services() {
         echo ""
         read -p "Enter number to toggle (d to done): " choice
         
-        if [[ "$choice" == "d" ]]; then
+        if [[ "$choice" == "a" ]]; then
+            for i in "${!SELECTED[@]}"; do
+                SELECTED[$i]=true
+            done
+        elif [[ "$choice" == "d" ]]; then
             running=false
         elif [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -lt "${#SERVICES[@]}" ]]; then
             if [[ "${SELECTED[$choice]}" == "true" ]]; then
