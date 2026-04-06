@@ -1,0 +1,110 @@
+# Immich Docker Compose
+# Self-hosted photo and video backup solution
+
+version: '3.8'
+
+services:
+  immich:
+    container_name: immich
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    command: ['start.sh', 'immich']
+    restart: unless-stopped
+    ports:
+      - "2283:3001"
+    volumes:
+      - immich-upload:/upload
+      - /mnt/photos:/photos:ro
+    environment:
+      - DB_HOSTNAME=immich-db
+      - DB_USERNAME=immich
+      - DB_PASSWORD=${IMMICH_DB_PASSWORD:-immich}
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=immich-redis
+      - TZ=America/Chicago
+    networks:
+      - immich
+    depends_on:
+      - immich-db
+      - immich-redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.immich.rule=Host(`immich.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.immich.entryPoints=websecure"
+      - "traefik.http.routers.immich.tls=true"
+      - "traefik.http.services.immich.loadbalancer.server.port=3001"
+
+  immich-microservices:
+    container_name: immich_microservices
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    command: ['start.sh', 'microservices']
+    restart: unless-stopped
+    volumes:
+      - immich-upload:/upload
+      - /mnt/photos:/photos:ro
+    environment:
+      - DB_HOSTNAME=immich-db
+      - DB_USERNAME=immich
+      - DB_PASSWORD=${IMMICH_DB_PASSWORD:-immich}
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=immich-redis
+      - TZ=America/Chicago
+    networks:
+      - immich
+    depends_on:
+      - immich-db
+      - immich-redis
+
+  immich-machine-learning:
+    container_name: immich_machine_learning
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    restart: unless-stopped
+    volumes:
+      - immich-ml-cache:/cache
+    environment:
+      - DB_HOSTNAME=immich-db
+      - DB_USERNAME=immich
+      - DB_PASSWORD=${IMMICH_DB_PASSWORD:-immich}
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=immich-redis
+      - TZ=America/Chicago
+    networks:
+      - immich
+    depends_on:
+      - immich-db
+      - immich-redis
+
+  immich-db:
+    container_name: immich-db
+    image: tensorchord/pgvecto-rs:pg16-v0.2.0
+    restart: unless-stopped
+    volumes:
+      - immich-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=immich
+      - POSTGRES_PASSWORD=${IMMICH_DB_PASSWORD:-immich}
+      - POSTGRES_DB=immich
+    networks:
+      - immich
+
+  immich-redis:
+    container_name: immich-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - immich-redis:/data
+    networks:
+      - immich
+
+networks:
+  immich:
+    name: immich
+
+volumes:
+  immich-upload:
+    name: immich-upload
+  immich-db:
+    name: immich-db
+  immich-redis:
+    name: immich-redis
+  immich-ml-cache:
+    name: immich-ml-cache

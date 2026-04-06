@@ -226,41 +226,45 @@ EOF
 # Stage 1: Core (prerequisites - always installed first)
 STAGE1_CORE=("docker" "portainer" "traefik")
 
-# Stage 2: Media Automation (arr stack - base for media servers)
-STAGE2_MEDIA_ARR=("sonarr" "radarr" "lidarr")
+# Stage 2: Authentication (Identity provider - early for auth needs)
+STAGE2_AUTH=("keycloak")
 
-# Stage 3: Media Servers (require arr stack)
-STAGE3_MEDIA_SERVERS=("jellyfin" "calibre" "navidrome")
+# Stage 3: Media Automation (arr stack - base for media servers)
+STAGE3_MEDIA_ARR=("sonarr" "radarr" "lidarr")
 
-# Stage 4: Request Management (needs arr stack)
-STAGE4_REQUESTS=("jellyseerr")
+# Stage 4: Media Servers (require arr stack)
+STAGE4_MEDIA_SERVERS=("jellyfin" "calibre" "navidrome" "immich")
 
-# Stage 5: Dashboard (needs services running)
-STAGE5_DASHBOARD=("homepage")
+# Stage 5: Request Management (needs arr stack)
+STAGE5_REQUESTS=("jellyseerr")
 
-# Stage 6: Monitoring
-STAGE6_MONITORING=("uptime-kuma" "grafana" "ntfy")
+# Stage 6: Dashboard (needs services running)
+STAGE6_DASHBOARD=("homepage")
 
-# Stage 7: Security
-STAGE7_SECURITY=("vaultwarden" "authelia" "keycloak" "adguard")
+# Stage 7: Monitoring
+STAGE7_MONITORING=("uptime-kuma" "grafana" "ntfy")
 
-# Stage 8: Storage & Productivity
-STAGE8_STORAGE=("nextcloud" "minio" "syncthing")
+# Stage 8: Security (excludes keycloak - now in Stage 2)
+STAGE8_SECURITY=("vaultwarden" "authelia" "adguard")
 
-# Stage 9: AI
-STAGE9_AI=("ollama" "openwebui")
+# Stage 9: Storage & Productivity
+STAGE9_STORAGE=("nextcloud" "minio" "syncthing")
+
+# Stage 10: AI
+STAGE10_AI=("ollama" "openwebui")
 
 # All stages in order
 ALL_STAGES=(
     "STAGE1_CORE"
-    "STAGE2_MEDIA_ARR"
-    "STAGE3_MEDIA_SERVERS"
-    "STAGE4_REQUESTS"
-    "STAGE5_DASHBOARD"
-    "STAGE6_MONITORING"
-    "STAGE7_SECURITY"
-    "STAGE8_STORAGE"
-    "STAGE9_AI"
+    "STAGE2_AUTH"
+    "STAGE3_MEDIA_ARR"
+    "STAGE4_MEDIA_SERVERS"
+    "STAGE5_REQUESTS"
+    "STAGE6_DASHBOARD"
+    "STAGE7_MONITORING"
+    "STAGE8_SECURITY"
+    "STAGE9_STORAGE"
+    "STAGE10_AI"
 )
 
 # Dependency graph: service -> services it depends on
@@ -336,6 +340,7 @@ declare -A SERVICES=(
     ["traefik"]="Reverse proxy with automatic SSL"
     ["jellyfin"]="Media server for movies, TV, and music"
     ["plex"]="Media server (requires paid license)"
+    ["immich"]="Photo and video backup with AI"
     ["sonarr"]="TV show management"
     ["radarr"]="Movie management"
     ["lidarr"]="Music collection management"
@@ -377,6 +382,7 @@ show_service_menu() {
     echo ""
     echo -e "${YELLOW}🎬 Media${NC}"
     echo "  [ ] Jellyfin         - Media server (free)"
+    echo "  [ ] Immich           - Photo & video backup (AI)"
     echo "  [ ] Calibre          - Ebook management"
     echo "  [ ] Navidrome        - Music streaming"
     echo "  [ ] Sonarr           - TV show management"
@@ -428,6 +434,7 @@ select_services() {
         "traefik:Networking:Reverse proxy with automatic SSL"
         "adguard:Networking:DNS-level ad blocking"
         "jellyfin:Media:Media server for movies, TV, and music"
+        "immich:Media:Photo and video backup with AI"
         "calibre:Media:Ebook management and reader"
         "navidrome:Media:Music streaming server"
         "sonarr:Media:TV show management"
@@ -699,29 +706,32 @@ install_selected_services() {
         install_service "traefik"
     fi
     
-    # Stage 2: Media ARR stack
-    install_stage STAGE2_MEDIA_ARR 2 "MEDIA AUTOMATION (arr stack)"
+    # Stage 2: Auth (Keycloak)
+    install_stage STAGE2_AUTH 2 "AUTHENTICATION"
     
-    # Stage 3: Media servers
-    install_stage STAGE3_MEDIA_SERVERS 3 "MEDIA SERVERS"
+    # Stage 3: Media ARR stack
+    install_stage STAGE3_MEDIA_ARR 3 "MEDIA AUTOMATION (arr stack)"
     
-    # Stage 4: Request management
-    install_stage STAGE4_REQUESTS 4 "REQUEST MANAGEMENT"
+    # Stage 4: Media servers
+    install_stage STAGE4_MEDIA_SERVERS 4 "MEDIA SERVERS"
     
-    # Stage 5: Dashboard
-    install_stage STAGE5_DASHBOARD 5 "DASHBOARDS"
+    # Stage 5: Request management
+    install_stage STAGE5_REQUESTS 5 "REQUEST MANAGEMENT"
     
-    # Stage 6: Monitoring
-    install_stage STAGE6_MONITORING 6 "MONITORING"
+    # Stage 6: Dashboard
+    install_stage STAGE6_DASHBOARD 6 "DASHBOARDS"
     
-    # Stage 7: Security
-    install_stage STAGE7_SECURITY 7 "SECURITY"
+    # Stage 7: Monitoring
+    install_stage STAGE7_MONITORING 7 "MONITORING"
     
-    # Stage 8: Storage
-    install_stage STAGE8_STORAGE 8 "STORAGE & PRODUCTIVITY"
+    # Stage 8: Security
+    install_stage STAGE8_SECURITY 8 "SECURITY"
     
-    # Stage 9: AI
-    install_stage STAGE9_AI 9 "AI SERVICES"
+    # Stage 9: Storage
+    install_stage STAGE9_STORAGE 9 "STORAGE & PRODUCTIVITY"
+    
+    # Stage 10: AI
+    install_stage STAGE10_AI 10 "AI SERVICES"
     
     echo ""
     echo -e "${GREEN}All selected services installed!${NC}"
