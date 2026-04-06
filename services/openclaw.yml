@@ -20,8 +20,8 @@ services:
       - openclaw-workspace:/workspace
       # Docker socket for container management
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      # SSH access (optional) - WARNING: Mounting SSH keys grants container full key access to your server
-      - ~/.ssh:/home/openclaw/.ssh:ro
+      # SSH access (optional) - Mount SSH keys only if needed, otherwise leave commented
+      # - ~/.ssh:/home/openclaw/.ssh:ro
       # Homelab services config (read-only for safety)
       - ../services:/home/openclaw/homelab-install/services:ro
     networks:
@@ -33,6 +33,24 @@ services:
       - "traefik.http.routers.openclaw.tls=true"
       - "traefik.http.routers.openclaw.middlewares=security-headers"
       - "traefik.http.services.openclaw.loadbalancer.server.port=3000"
+    # Security: no-new-privileges prevents privilege escalation
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits to prevent DoS
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 networks:
   proxy:
