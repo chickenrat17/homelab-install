@@ -521,6 +521,11 @@ select_services() {
         SELECTED[$i]=false
     done
     
+    # Default selected services (recommended for most homelabs)
+    SELECTED[0]=true   # traefik
+    SELECTED[1]=true  # adguard (DNS for local .local domains)
+    SELECTED[22]=true # homepage
+    
     local running=true
     while $running; do
         clear
