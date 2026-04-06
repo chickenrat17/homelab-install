@@ -3,7 +3,7 @@
 
 services:
   jellyseerr:
-    image: fallentheta/jellyseerr:latest
+    image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
     restart: unless-stopped
     environment:
