@@ -1,0 +1,36 @@
+# Keycloak Docker Compose
+# Identity and Access Management (IAM) solution
+
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: keycloak
+    restart: unless-stopped
+    command: start-dev
+    environment:
+      - TZ=America/Chicago
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=changeMe123!
+      - KC_DB=dev-file
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak-data:/data
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`keycloak.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.keycloak.entryPoints=websecure"
+      - "traefik.http.routers.keycloak.tls=true"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  keycloak-data:
+    name: keycloak-data

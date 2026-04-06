@@ -242,7 +242,7 @@ STAGE5_DASHBOARD=("homepage")
 STAGE6_MONITORING=("uptime-kuma" "grafana" "ntfy")
 
 # Stage 7: Security
-STAGE7_SECURITY=("vaultwarden" "authelia" "adguard")
+STAGE7_SECURITY=("vaultwarden" "authelia" "keycloak" "adguard")
 
 # Stage 8: Storage & Productivity
 STAGE8_STORAGE=("nextcloud" "minio" "syncthing")
@@ -345,6 +345,7 @@ declare -A SERVICES=(
     ["adguard"]="DNS-level ad blocking"
     ["vaultwarden"]="Password manager"
     ["authelia"]="Two-factor authentication portal"
+    ["keycloak"]="Identity and access management"
     ["uptime-kuma"]="Self-hosted monitoring"
     ["grafana"]="Metrics dashboards"
     ["prometheus"]="Metrics collection"
@@ -383,6 +384,7 @@ show_service_menu() {
     echo -e "${YELLOW}🔐 Security${NC}"
     echo "  [ ] Vaultwarden      - Password manager"
     echo "  [ ] Authelia         - Two-factor authentication"
+    echo "  [ ] Keycloak         - Identity & access management"
     echo ""
     echo -e "${YELLOW}📊 Monitoring${NC}"
     echo "  [ ] Uptime Kuma      - Self-hosted monitoring"
@@ -428,6 +430,7 @@ select_services() {
         "jellyseerr:Media:Media request management"
         "vaultwarden:Security:Password manager"
         "authelia:Security:Two-factor authentication portal"
+        "keycloak:Security:Identity and access management"
         "uptime-kuma:Monitoring:Self-hosted monitoring"
         "grafana:Monitoring:Metrics dashboards"
         "ntfy:Monitoring:Push notifications"
