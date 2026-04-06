@@ -1,5 +1,4 @@
 ---
 # Docker API Configuration
 docker:
-  host: unix:///var/run/docker.sock
-  expose: true
+  socket: /var/run/docker.sock

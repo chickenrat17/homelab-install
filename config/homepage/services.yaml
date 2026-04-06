@@ -11,11 +11,11 @@
         description: Container Management
         icon: portainer.png
     - Ollama:
-        href: http://192.168.68.95:11434
+        href: http://192.168.68.95/ollama
         description: Local AI Models
         icon: ollama.png
     - Keycloak:
-        href: http://192.168.68.95:3000/keycloak
+        href: http://192.168.68.95:8080/keycloak
         description: Identity Provider
         icon: keycloak.png
 
