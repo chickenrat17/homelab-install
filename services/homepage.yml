@@ -24,7 +24,7 @@ services:
       - "traefik.http.routers.homepage.middlewares=security-headers"
       - "traefik.http.services.homepage.loadbalancer.server.port=3000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
