@@ -403,6 +403,7 @@ declare -A SERVICES=(
     ["calibre"]="Ebook management and reader"
     ["navidrome"]="Music streaming server"
     ["jellyseerr"]="Request management for media"
+    ["crafty"]="Minecraft server control panel"
     ["audiobookshelf"]="Audiobook server"
     ["tubearchivist"]="YouTube archive"
     ["adguard"]="DNS-level ad blocking"

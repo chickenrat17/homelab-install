@@ -1,0 +1,35 @@
+# Crafty Controller Docker Compose
+# Minecraft Server Control Panel
+
+services:
+  crafty:
+    image: arcadiatechnology/crafty-4:latest
+    container_name: crafty
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - crafty-config:/app/crafty/config
+      - crafty-logs:/app/crafty/logs
+      - /mnt/minecraft:/mnt/minecraft:ro
+    networks:
+      - proxy
+    ports:
+      - "8443:8443"
+      - "19132:19132/udp"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.crafty.rule=Host(`crafty.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.crafty.entryPoints=websecure"
+      - "traefik.http.routers.crafty.tls=true"
+      - "traefik.http.services.crafty.loadbalancer.server.port=8443"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  crafty-config:
+    name: crafty-config
+  crafty-logs:
+    name: crafty-logs
