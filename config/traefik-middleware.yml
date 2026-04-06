@@ -1,0 +1,31 @@
+# Traefik Middleware Configuration
+# Centralized middleware definitions for Homelab services
+
+http:
+  middlewares:
+    # Keycloak forward auth - protect services with Keycloak login
+    keycloak-auth:
+      forwardauth:
+        address: "http://keycloak:8080/realms/homelab/protocol/openid-connect/auth?client_id=traefik&redirect_uri=${TRAEFIK_URL}"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "X-Forwarded-User"
+          - "X-Forwarded-Email"
+          - "X-Forwarded-Preferred-Username"
+
+    # Basic security headers
+    security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        customResponseHeaders:
+          X-Robots-Tag: "noindex, nofollow"
+
+    # Rate limiting (optional)
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1s

@@ -21,6 +21,7 @@ services:
       - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.homeassistant.entryPoints=web,websecure"
       - "traefik.http.routers.homeassistant.tls=true"
+      - "traefik.http.routers.homeassistant.middlewares=security-headers"
       - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
 
 networks:

@@ -20,6 +20,7 @@ services:
       - "traefik.http.routers.homepage.rule=Host(`home.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.homepage.entryPoints=web,websecure"
       - "traefik.http.routers.homepage.tls=true"
+      - "traefik.http.routers.homepage.middlewares=security-headers"
       - "traefik.http.services.homepage.loadbalancer.server.port=3000"
 
 networks:
