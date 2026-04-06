@@ -35,6 +35,58 @@ confirm() {
     esac
 }
 
+# Validate required environment variables
+validate_env_vars() {
+    log_info "Validating environment variables..."
+    
+    source "$HOMELAB_DIR/.env" 2>/dev/null || true
+    
+    local missing=()
+    
+    # Required variables (no defaults - user must set these)
+    [[ -z "$DOMAIN" ]] && missing+=("DOMAIN")
+    [[ -z "$KEYCLOAK_ADMIN_PASSWORD" ]] && missing+=("KEYCLOAK_ADMIN_PASSWORD")
+    [[ -z "$GF_SECURITY_ADMIN_PASSWORD" ]] && missing+=("GF_SECURITY_ADMIN_PASSWORD")
+    
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        log_error "Missing required variables in .env: ${missing[*]}"
+        log_info "Edit $HOMELAB_DIR/.env and set these values before continuing."
+        exit 1
+    fi
+    
+    log_success "All required variables set"
+}
+
+# Prompt for admin password
+prompt_admin_password() {
+    source "$HOMELAB_DIR/.env" 2>/dev/null || true
+    
+    if [[ -z "$ADMIN_PASSWORD" ]]; then
+        echo ""
+        log_info "Set your admin password for homelab services:"
+        read -s -p "Password: " ADMIN_PASSWORD
+        echo ""
+        read -s -p "Confirm: " ADMIN_PASSWORD_CONFIRM
+        echo ""
+        
+        if [[ "$ADMIN_PASSWORD" != "$ADMIN_PASSWORD_CONFIRM" ]]; then
+            log_error "Passwords do not match"
+            exit 1
+        fi
+        
+        if [[ ${#ADMIN_PASSWORD} -lt 8 ]]; then
+            log_error "Password must be at least 8 characters"
+            exit 1
+        fi
+        
+        # Save to .env
+        echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" >> "$HOMELAB_DIR/.env"
+        log_success "Admin password saved"
+    else
+        log_info "Admin password already configured"
+    fi
+}
+
 # Check if running as root
 check_root() {
     if [[ $EUID -ne 0 ]]; then
@@ -576,11 +628,16 @@ main() {
     
     # Check for .env file
     if [ ! -f "$HOMELAB_DIR/.env" ]; then
-        log_error ".env file not found at $HOMELAB_DIR/.env"
-        log_info "Copy .env.example to .env and configure before continuing."
-        exit 1
+        log_info ".env file not found. Creating with defaults..."
+        cp "$HOMELAB_DIR/.env.example" "$HOMELAB_DIR/.env"
     fi
     log_success ".env file exists"
+
+    # Validate required environment variables
+    validate_env_vars
+
+    # Prompt for admin password if not set
+    prompt_admin_password
     
     # Mode selection
     select_mode
