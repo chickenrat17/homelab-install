@@ -795,10 +795,14 @@ install_selected_services() {
     echo -e "${YELLOW}Installing in dependency order...${NC}"
     echo ""
     
-    # Core always gets installed first (traefik)
+    # Core always gets installed first (traefik via main(), not stage-based)
     if is_service_selected "traefik"; then
-        log_stage "1" "CORE SERVICES"
-        install_service "traefik"
+        if docker ps --format '{{.Names}}' | grep -q "^traefik$"; then
+            log_info "Traefik already installed"
+        else
+            log_stage "1" "CORE SERVICES"
+            install_service "traefik"
+        fi
     fi
     
     # Stage 2: Auth (Keycloak)

@@ -1,0 +1,32 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - $HOMELAB_DIR/config/traefik/traefik.yml:/traefik.yml:ro
+      - $HOMELAB_DIR/config/traefik/acme.json:/acme.json
+      - traefik-log:/logs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(\`traefik.localhost\`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  traefik-log:
+    name: traefik-log
