@@ -215,8 +215,7 @@ services:
 
 networks:
   proxy:
-    name: proxy
-    driver: bridge
+    external: true
 
 volumes:
   traefik-log:
