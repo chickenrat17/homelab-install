@@ -1,0 +1,21 @@
+# Secrets and local config
+.env
+*.local.yml
+*.local.yaml
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Backup
+*.bak
+*.backup
+backups/

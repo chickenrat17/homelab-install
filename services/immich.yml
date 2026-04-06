@@ -24,8 +24,10 @@ services:
     networks:
       - immich
     depends_on:
-      - immich-db
-      - immich-redis
+      immich-db:
+        condition: service_healthy
+      immich-redis:
+        condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.immich.rule=Host(`immich.${DOMAIN:-localhost}`)"
@@ -38,6 +40,11 @@ services:
     image: ghcr.io/immich-app/immich-server:v1.128.0
     command: ['start.sh', 'microservices']
     restart: unless-stopped
+    depends_on:
+      immich-db:
+        condition: service_healthy
+      immich-redis:
+        condition: service_healthy
     volumes:
       - immich-upload:/upload
       - /mnt/photos:/photos:ro
@@ -85,6 +92,11 @@ services:
       - POSTGRES_DB=immich
     networks:
       - immich
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "immich"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   immich-redis:
     container_name: immich-redis
@@ -94,6 +106,11 @@ services:
       - immich-redis:/data
     networks:
       - immich
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   immich:
