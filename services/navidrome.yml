@@ -5,7 +5,7 @@ version: '3.8'
 
 services:
   navidrome:
-    image: deluan/navidrome:latest
+    image: deluan/navidrome:0.55.0
     container_name: navidrome
     restart: unless-stopped
     environment:

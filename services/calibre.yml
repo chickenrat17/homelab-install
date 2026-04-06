@@ -5,7 +5,7 @@ version: '3.8'
 
 services:
   calibre:
-    image: lscr.io/linuxserver/calibre-web:latest
+    image: lscr.io/linuxserver/calibre-web:v0.6.25
     container_name: calibre
     restart: unless-stopped
     environment:

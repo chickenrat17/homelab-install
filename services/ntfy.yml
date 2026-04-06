@@ -5,7 +5,7 @@ version: '3.8'
 
 services:
   ntfy:
-    image: binaries.ory.sh/ntfy:latest
+    image: binaries.ory.sh/ntfy:v2.6.0
     container_name: ntfy
     restart: unless-stopped
     environment:
