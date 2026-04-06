@@ -736,10 +736,10 @@ install_service() {
         return 1
     fi
     
-    # Check if already running
-    if docker ps --format '{{.Names}}' | grep -q "^${service}$"; then
-        log_info "$service already running"
-        return 0
+    # Check if container exists (even if not running)
+    if docker ps -a --format '{{.Names}}' | grep -q "^${service}$"; then
+        log_info "Removing existing container for $service..."
+        docker rm -f "$service" >/dev/null 2>&1 || true
     fi
     
     log_info "Installing $service..."
@@ -748,9 +748,9 @@ install_service() {
     local temp_file=$(mktemp)
     env DOMAIN="${DOMAIN:-localhost}" envsubst < "$compose_file" > "$temp_file"
     
-    # Run docker compose
+    # Run docker compose with --remove-orphans to clean up orphaned containers
     cd "$SERVICE_DIR"
-    docker compose -f "$temp_file" up -d
+    docker compose -f "$temp_file" up -d --remove-orphans
     
     rm -f "$temp_file"
     log_success "$service installed"
