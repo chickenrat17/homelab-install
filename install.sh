@@ -14,7 +14,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Config
-HOMELAB_DIR="$HOME/homelab-install"
+HOMELAB_DIR="$HOMELAB_DIR"
 SERVICE_DIR="$HOMELAB_DIR/services"
 CONFIG_DIR="$HOMELAB_DIR/config"
 
@@ -203,8 +203,8 @@ services:
       - TZ=America/Chicago
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - $HOME/homelab-install/config/traefik/traefik.yml:/traefik.yml:ro
-      - $HOME/homelab-install/config/traefik/acme.json:/acme.json
+      - $HOMELAB_DIR/config/traefik/traefik.yml:/traefik.yml:ro
+      - $HOMELAB_DIR/config/traefik/acme.json:/acme.json
       - traefik-log:/logs
     labels:
       - "traefik.enable=true"
