@@ -751,10 +751,13 @@ install_service() {
         return 1
     fi
     
-    # Check if container exists (even if not running)
+    # Check if container exists - just start it if so
     if docker ps -a --format '{{.Names}}' | grep -q "^${service}$"; then
-        log_info "Removing existing container for $service..."
-        docker rm -f "$service" >/dev/null 2>&1 || true
+        log_info "Starting existing container for $service..."
+        docker start "$service" >/dev/null 2>&1
+        rm -f "$temp_file"
+        log_success "$service started"
+        return 0
     fi
     
     log_info "Installing $service..."
@@ -765,7 +768,7 @@ install_service() {
     
     # Run docker compose with  to clean up orphaned containers
     cd "$SERVICE_DIR"
-    docker compose -f "$temp_file" up -d 
+    docker compose -f "$temp_file" up -d --no-recreate 
     
     rm -f "$temp_file"
     log_success "$service installed"
