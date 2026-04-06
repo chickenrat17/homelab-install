@@ -1,0 +1,24 @@
+services:
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+      - "4443:443"
+    volumes:
+      - /home/hallmikey/homelab-install/config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - /home/hallmikey/homelab-install/config/caddy/caddy-data:/data:rw
+      - /home/hallmikey/homelab-install/config/caddy/caddy-config:/config:rw
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.caddy.rule=Host(`caddy.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.caddy.entryPoints=websecure"
+      - "traefik.http.routers.caddy.tls=true"
+      - "traefik.http.services.caddy.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,21 @@
+# Caddyfile for Homelab
+# Auto-reload config, serve static files, proxy to services
+
+{
+    auto_https off
+}
+
+# PiHole Admin - replace homelab.local with your domain
+pihole.localhost {
+    reverse_proxy http://192.168.68.95:8081
+}
+
+# Traefik Dashboard
+traefik.localhost {
+    reverse_proxy http://192.168.68.95:9090
+}
+
+# Caddy Admin API
+caddy.localhost {
+    reverse_proxy http://localhost:8080
+}

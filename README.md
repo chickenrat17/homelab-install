@@ -1,6 +1,6 @@
 # Homelab Installer
 
-One-command homelab setup with Docker, Portainer, Traefik, and OpenClaw.
+One-command homelab setup with Docker, Portainer, Traefik, Caddy, PiHole, and OpenClaw.
 
 ## Prerequisites
 
@@ -29,6 +29,18 @@ sudo bash ~/homelab-install/install.sh
 - Homelab runs inside an **Ubuntu Server VM** on Proxmox
 - All services run as **Docker containers** inside that VM
 - The installer runs *inside* the Ubuntu VM, not on Proxmox directly
+
+### Traffic Flow
+
+```
+Internet → Caddy (reverse proxy) → Traefik → Services
+             ↓
+        PiHole (DNS)
+```
+
+**Caddy**: Handles DNS-based routing for `*.homelab.local` domains
+**PiHole**: Provides local DNS resolution for internal domains
+**Traefik**: Final routing layer for containerized services
 
 ## Proxmox Setup Guide
 
@@ -184,11 +196,15 @@ bash ~/homelab-install/homelab-configure.sh
 - **Docker** - Container runtime
 - **Portainer** - Web-based container management (https://your-ip:9443)
 - **Traefik** - Reverse proxy with automatic SSL (http://your-ip:8080)
+- **Caddy** - DNS-aware reverse proxy (http://your-ip:80, https://your-ip:443)
+- **PiHole** - Local DNS server (http://your-ip:8081/admin)
 
 ## Service Definitions
 
 | Service | File | Description | Website |
 |---------|------|-------------|---------|
+| Caddy | `services/caddy.yml` | Reverse proxy with DNS | [caddyserver.com](https://caddyserver.com/) |
+| PiHole | `services/pihole.yml` | Local DNS server | [pi-hole.net](https://pi-hole.net/) |
 | AdGuard | `services/adguard.yml` | DNS-level ad blocking | [adguard.com](https://adguard.com/) |
 | Calibre | `services/calibre.yml` | Ebook management | [calibre-ebook.com](https://calibre-ebook.com/) |
 | Immich | `services/immich.yml` | Photo/video backup with AI | [immich.app](https://immich.app/) |
