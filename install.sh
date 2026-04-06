@@ -557,7 +557,7 @@ select_services() {
         read -p "Enter number to toggle (d to done): " choice
         
         if [[ "$choice" == "a" ]]; then
-            for i in "${!SELECTED[@]}"; do
+            for i in "${!SERVICES[@]}"; do
                 SELECTED[$i]=true
             done
         elif [[ "$choice" == "d" ]]; then
