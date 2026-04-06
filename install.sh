@@ -513,6 +513,7 @@ select_services() {
         "ollama:AI:Local AI models"
         "openwebui:AI:AI model web interface"
         "homepage:Dashboard:Homelab dashboard"
+        "samba:Storage:Network file sharing"
     )
     
     # Initialize selection array
