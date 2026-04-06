@@ -1,0 +1,42 @@
+---
+# Homelab Services
+
+- Homelab Services:
+    - Traefik:
+        href: http://192.168.68.95:8080
+        description: Reverse Proxy & Dashboard
+        icon: traefik.png
+    - Portainer:
+        href: https://192.168.68.95:9443
+        description: Container Management
+        icon: portainer.png
+    - Ollama:
+        href: http://192.168.68.95:11434
+        description: Local AI Models
+        icon: ollama.png
+    - Keycloak:
+        href: http://192.168.68.95:3000/keycloak
+        description: Identity Provider
+        icon: keycloak.png
+
+- Media:
+    - Jellyfin:
+        href: http://192.168.68.95:8096
+        description: Media Server
+        icon: jellyfin.png
+    - Sonarr:
+        href: http://192.168.68.95:8989
+        description: TV Show Management
+        icon: sonarr.png
+    - Radarr:
+        href: http://192.168.68.95:7878
+        description: Movie Management
+        icon: radarr.png
+    - Lidarr:
+        href: http://192.168.68.95:8686
+        description: Music Management
+        icon: lidarr.png
+    - Jellyseerr:
+        href: http://192.168.68.95:5055
+        description: Media Requests
+        icon: jellyseerr.png

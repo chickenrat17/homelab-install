@@ -776,6 +776,18 @@ install_service() {
     docker compose -f "$temp_file" up -d --no-recreate 
     
     rm -f "$temp_file"
+    
+    # Copy homepage config if it exists
+    if [[ "$service" == "homepage" ]]; then
+        if [[ -d "$CONFIG_DIR/homepage" ]]; then
+            docker cp "$CONFIG_DIR/homepage/." homepage:/config/ 2>/dev/null
+        fi
+        # Add allowed hosts for direct IP access
+        docker stop homepage >/dev/null 2>&1
+        docker rm homepage >/dev/null 2>&1
+        docker run -d --name homepage --network proxy -p 3000:3000             -e HOMEPAGE_ALLOWED_HOSTS=192.168.68.95:3000,localhost,home.${DOMAIN:-localhost}             -v homepage-config:/config             -v /var/run/docker.sock:/var/run/docker.sock:ro             ghcr.io/gethomepage/homepage:v1.0.4
+    fi
+    
     log_success "$service installed"
 }
 

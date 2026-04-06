@@ -1,0 +1,13 @@
+---
+# Homepage Settings
+logo: Logo.png
+background: 
+
+widgets:
+  - resources:
+      cpu: true
+      memory: true
+      disk: /
+  - search:
+      provider: duckduckgo
+      target: _blank
