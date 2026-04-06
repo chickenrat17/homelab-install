@@ -760,13 +760,10 @@ install_service() {
         return 1
     fi
     
-    # Check if container exists - just start it if so
+    # Check if container exists - recreate to apply updated config
     if docker ps -a --format '{{.Names}}' | grep -q "^${service}$"; then
-        log_info "Starting existing container for $service..."
-        docker start "$service" >/dev/null 2>&1
-        rm -f "$temp_file"
-        log_success "$service started"
-        return 0
+        log_info "Recreating $service with updated config..."
+        docker rm -f "$service" >/dev/null 2>&1
     fi
     
     log_info "Installing $service..."
