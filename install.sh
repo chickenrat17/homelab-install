@@ -698,11 +698,24 @@ main() {
     echo "   - Portainer:  https://${ip}:9443"
     echo "   - Traefik:    http://${ip}:8080"
     
+    # Service ports (when not using Traefik)
+    declare -A SERVICE_PORTS=(
+        [homepage]=3000
+        [keycloak]=8080
+        [jellyseerr]=5055
+        [jellyfin]=8096
+        [sonarr]=8989
+        [radarr]=7878
+        [ollama]=11434
+        [openwebui]=8080
+        [grafana]=3000
+        [vaultwarden]=8080
+    )
+    
     # List running services with web interfaces
-    local services="homepage keycloak jellyseerr"
-    for svc in $services; do
+    for svc in ${!SERVICE_PORTS[@]}; do
         if docker ps --format '{{.Names}}' | grep -q "^$svc$"; then
-            echo "   - ${svc}:      http://${ip}"
+            echo "   - ${svc}:      http://${ip}:${SERVICE_PORTS[$svc]}"
         fi
     done
     echo ""
