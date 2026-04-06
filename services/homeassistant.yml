@@ -1,0 +1,32 @@
+# Home Assistant Docker Compose
+# Open-source home automation platform
+
+version: '3.8'
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - homeassistant-config:/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt:/mnt:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.homeassistant.entryPoints=web,websecure"
+      - "traefik.http.routers.homeassistant.tls=true"
+      - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  homeassistant-config:
+    name: homeassistant-config

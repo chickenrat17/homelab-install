@@ -19,3 +19,6 @@
     - name: Vaultwarden
       href: "https://vault.${DOMAIN:-localhost}"
       icon: lock
+    - name: Home Assistant
+      href: "https://homeassistant.${DOMAIN:-localhost}"
+      icon: home-assistant
