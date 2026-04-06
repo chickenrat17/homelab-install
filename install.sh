@@ -55,6 +55,18 @@ validate_env_vars() {
     [[ -z "$KEYCLOAK_ADMIN_PASSWORD" ]] && missing+=("KEYCLOAK_ADMIN_PASSWORD")
     [[ -z "$GF_SECURITY_ADMIN_PASSWORD" ]] && missing+=("GF_SECURITY_ADMIN_PASSWORD")
     
+    # Validate DOMAIN format
+    if [[ -n "$DOMAIN" ]]; then
+        if [[ ! "$DOMAIN" =~ ^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$ ]]; then
+            log_warn "DOMAIN '$DOMAIN' may not be a valid domain format"
+        fi
+        # Warn about .local domains (not Let's Encrypt compatible)
+        if [[ "$DOMAIN" == *".local" ]] || [[ "$DOMAIN" == *".localtld" ]]; then
+            log_warn "DOMAIN '$DOMAIN' is a .local domain - Let's Encrypt will NOT work"
+            log_warn "Use internal SSL or Cloudflare Tunnel for external access"
+        fi
+    fi
+    
     if [[ ${#missing[@]} -gt 0 ]]; then
         log_error "Missing required variables in .env: ${missing[*]}"
         log_info "Edit $HOMELAB_DIR/.env and set these values before continuing."
@@ -258,6 +270,25 @@ certificatesResolvers:
         entryPoint: web
 EOF
 
+    # Create dynamic middleware config
+    cat > "$CONFIG_DIR/traefik/dynamic/middleware.yml" << 'MIDDLEWARE'
+http:
+  middlewares:
+    security-headers:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        frameDeny: true
+        sslRedirect: true
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+    # Basic auth for Traefik dashboard (optional, uncomment to enable)
+    # dashboard-auth:
+    #   basicAuth:
+    #     users:
+    #       - "admin:$2a$12$abc123..."
+MIDDLEWARE
+    
     # Set permissions
     touch "$CONFIG_DIR/traefik/acme.json"
     chmod 600 "$CONFIG_DIR/traefik/acme.json"
