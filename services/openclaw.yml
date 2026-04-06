@@ -31,7 +31,7 @@ services:
       - "traefik.http.routers.openclaw.rule=Host(`openclaw.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.openclaw.entryPoints=websecure"
       - "traefik.http.routers.openclaw.tls=true"
-      - "traefik.http.routers.openclaw.middlewares=keycloak-auth,security-headers"
+      - "traefik.http.routers.openclaw.middlewares=security-headers"
       - "traefik.http.services.openclaw.loadbalancer.server.port=3000"
 
 networks:

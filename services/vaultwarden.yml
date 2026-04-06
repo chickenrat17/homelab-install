@@ -24,7 +24,7 @@ services:
       - "traefik.http.routers.vaultwarden.rule=Host(`vault.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.vaultwarden.entryPoints=websecure"
       - "traefik.http.routers.vaultwarden.tls=true"
-      - "traefik.http.routers.vaultwarden.middlewares=keycloak-auth,security-headers"
+      - "traefik.http.routers.vaultwarden.middlewares=security-headers"
       - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]

@@ -23,7 +23,7 @@ services:
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.prometheus.entryPoints=websecure"
       - "traefik.http.routers.prometheus.tls=true"
-      - "traefik.http.routers.prometheus.middlewares=keycloak-auth,security-headers"
+      - "traefik.http.routers.prometheus.middlewares=security-headers"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
 
   grafana-promtail:
@@ -50,7 +50,7 @@ services:
       - "traefik.http.routers.loki.rule=Host(`loki.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.loki.entryPoints=websecure"
       - "traefik.http.routers.loki.tls=true"
-      - "traefik.http.routers.loki.middlewares=keycloak-auth,security-headers"
+      - "traefik.http.routers.loki.middlewares=security-headers"
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
 
 networks:

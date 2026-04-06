@@ -20,7 +20,7 @@ services:
       - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.cadvisor.entryPoints=websecure"
       - "traefik.http.routers.cadvisor.tls=true"
-      - "traefik.http.routers.cadvisor.middlewares=keycloak-auth,security-headers"
+      - "traefik.http.routers.cadvisor.middlewares=security-headers"
       - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
 
 networks:
