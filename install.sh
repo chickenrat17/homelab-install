@@ -508,6 +508,8 @@ select_services() {
         "paperless:Productivity:Document management"
         "minio:Storage:S3-compatible storage"
         "syncthing:Storage:File synchronization"
+        "crafty:Games:Minecraft server control panel"
+        "openclaw:AI:Homelab assistant / IT bot"
         "ollama:AI:Local AI models"
         "openwebui:AI:AI model web interface"
         "homepage:Dashboard:Homelab dashboard"
