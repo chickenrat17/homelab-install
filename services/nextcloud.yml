@@ -1,7 +1,6 @@
 # Nextcloud Docker Compose
 # File sync and sharing, collaboration platform
 
-version: '3.8'
 
 services:
   nextcloud:

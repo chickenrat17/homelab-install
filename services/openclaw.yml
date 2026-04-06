@@ -1,7 +1,6 @@
 # OpenClaw Docker Compose
 # Self-hosted AI agent for homelab operations
 
-version: '3.8'
 
 services:
   openclaw:

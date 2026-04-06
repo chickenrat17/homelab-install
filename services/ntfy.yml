@@ -1,7 +1,6 @@
 # ntfy Docker Compose
 # Push notifications service
 
-version: '3.8'
 
 services:
   ntfy:

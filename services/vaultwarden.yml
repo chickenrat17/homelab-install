@@ -1,7 +1,6 @@
 # Vaultwarden Docker Compose
 # Self-hosted password manager (Bitwarden compatible)
 
-version: '3.8'
 
 services:
   vaultwarden:

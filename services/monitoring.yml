@@ -1,7 +1,6 @@
 # Monitoring Stack Docker Compose
 # Prometheus + Loki for metrics and logs (optional)
 
-version: '3.8'
 
 services:
   prometheus:

@@ -1,7 +1,6 @@
 # Open WebUI Docker Compose
 # User-friendly AI model interface
 
-version: '3.8'
 
 services:
   openwebui:

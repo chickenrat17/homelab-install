@@ -1,7 +1,6 @@
 # Navidrome Docker Compose
 # Modern music server and streamer
 
-version: '3.8'
 
 services:
   navidrome:

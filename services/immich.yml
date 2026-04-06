@@ -1,7 +1,6 @@
 # Immich Docker Compose
 # Self-hosted photo and video backup solution
 
-version: '3.8'
 
 services:
   immich:

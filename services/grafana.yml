@@ -1,7 +1,6 @@
 # Grafana Docker Compose
 # Metrics visualization and dashboards
 
-version: '3.8'
 
 services:
   grafana:

@@ -1,7 +1,6 @@
 # Sonarr Docker Compose
 # TV show management and automation
 
-version: '3.8'
 
 services:
   sonarr:

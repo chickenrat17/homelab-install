@@ -1,7 +1,6 @@
 # Uptime Kuma Docker Compose
 # Self-hosted monitoring tool
 
-version: '3.8'
 
 services:
   uptime-kuma:

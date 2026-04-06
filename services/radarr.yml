@@ -1,7 +1,6 @@
 # Radarr Docker Compose
 # Movie management and automation
 
-version: '3.8'
 
 services:
   radarr:

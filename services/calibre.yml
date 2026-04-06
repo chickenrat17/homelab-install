@@ -1,7 +1,6 @@
 # Calibre Docker Compose
 # Web interface for ebook management
 
-version: '3.8'
 
 services:
   calibre:

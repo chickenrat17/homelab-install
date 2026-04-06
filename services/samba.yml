@@ -1,7 +1,6 @@
 # Samba Docker Compose
 # Network file share for LAN access
 
-version: '3.8'
 
 services:
   samba:

@@ -1,7 +1,6 @@
 # Keycloak Docker Compose
 # Identity and Access Management (IAM) solution
 
-version: '3.8'
 
 services:
   keycloak:

@@ -1,7 +1,6 @@
 # Lidarr Docker Compose
 # Music collection management
 
-version: '3.8'
 
 services:
   lidarr:

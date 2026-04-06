@@ -1,7 +1,6 @@
 # Home Assistant Docker Compose
 # Open-source home automation platform
 
-version: '3.8'
 
 services:
   homeassistant:

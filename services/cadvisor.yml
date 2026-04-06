@@ -1,7 +1,6 @@
 # cAdvisor Docker Compose
 # Container metrics exporter for Prometheus
 
-version: '3.8'
 
 services:
   cadvisor:

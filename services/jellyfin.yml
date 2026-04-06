@@ -1,7 +1,6 @@
 # Jellyfin Docker Compose
 # Media server for movies, TV shows, and music
 
-version: '3.8'
 
 services:
   jellyfin:

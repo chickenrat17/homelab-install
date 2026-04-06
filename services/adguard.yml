@@ -1,7 +1,6 @@
 # AdGuard Home Docker Compose
 # DNS-level ad blocking and parental control
 
-version: '3.8'
 
 services:
   adguard:

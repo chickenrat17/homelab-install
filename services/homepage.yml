@@ -1,7 +1,6 @@
 # Homepage Docker Compose
 # Modern homelab dashboard
 
-version: '3.8'
 
 services:
   homepage:

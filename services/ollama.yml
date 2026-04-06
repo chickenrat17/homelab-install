@@ -1,7 +1,6 @@
 # Ollama Docker Compose
 # Local AI model inference
 
-version: '3.8'
 
 services:
   ollama:

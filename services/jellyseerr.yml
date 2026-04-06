@@ -1,0 +1,29 @@
+# Jellyseerr Docker Compose
+# Media request management
+
+services:
+  jellyseerr:
+    image: fallentheta/jellyseerr:latest
+    container_name: jellyseerr
+    restart: unless-stopped
+    environment:
+      - TZ=America/Chicago
+    volumes:
+      - jellyseerr-config:/app/config
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.jellyseerr.entryPoints=websecure"
+      - "traefik.http.routers.jellyseerr.tls=true"
+      - "traefik.http.routers.jellyseerr.middlewares=keycloak-auth,security-headers"
+      - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  jellyseerr-config:
+    name: jellyseerr-config
