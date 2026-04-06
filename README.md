@@ -2,6 +2,15 @@
 
 One-command homelab setup with Docker, Portainer, Traefik, and OpenClaw.
 
+## Prerequisites
+
+- [Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server) - OS for the VM
+- [Proxmox VE](https://www.proxmox.com/proxmox-virtual-environment) - Hypervisor (or any VM host)
+- [Docker](https://www.docker.com/) - Container runtime (installed by script)
+- [Portainer](https://www.portainer.io/) - Container management UI
+- [Traefik](https://traefik.io/traefik/) - Reverse proxy with automatic SSL
+- [OpenClaw](https://openclaw.ai/) - Homelab assistant / "internal IT department"
+
 ## Quick Install
 
 ```bash
@@ -178,22 +187,27 @@ bash ~/homelab-install/homelab-configure.sh
 
 ## Service Definitions
 
-| Service | File | Description |
-|---------|------|-------------|
-| AdGuard | `services/adguard.yml` | DNS-level ad blocking |
-| Grafana | `services/grafana.yml` | Metrics visualization |
-| Homepage | `services/homepage.yml` | Dashboard |
-| Jellyfin | `services/jellyfin.yml` | Media server |
-| Keycloak | `services/keycloak.yml` | Identity management |
-| Lidarr | `services/lidarr.yml` | Music collection manager |
-| Nextcloud | `services/nextcloud.yml` | File sync/share |
-| Ntfy | `services/ntfy.yml` | Push notifications |
-| Ollama | `services/ollama.yml` | Local LLM runtime |
-| Open WebUI | `services/openwebui.yml` | ChatGPT-like UI for Ollama |
-| Radarr | `services/radarr.yml` | Movie collection manager |
-| Sonarr | `services/sonarr.yml` | TV series collection manager |
-| Uptime Kuma | `services/uptime-kuma.yml` | Monitoring |
-| Vaultwarden | `services/vaultwarden.yml` | Password manager |
+| Service | File | Description | Website |
+|---------|------|-------------|---------|
+| AdGuard | `services/adguard.yml` | DNS-level ad blocking | [adguard.com](https://adguard.com/) |
+| Calibre | `services/calibre.yml` | Ebook management | [calibre-ebook.com](https://calibre-ebook.com/) |
+| Immich | `services/immich.yml` | Photo/video backup with AI | [immich.app](https://immich.app/) |
+| Jellyfin | `services/jellyfin.yml` | Media server | [jellyfin.org](https://jellyfin.org/) |
+| Jellyseerr | `services/jellyseerr.yml` | Media requests | [jellyseerr.com](https://jellyseerr.com/) |
+| Keycloak | `services/keycloak.yml` | Identity management | [keycloak.org](https://keycloak.org/) |
+| Lidarr | `services/lidarr.yml` | Music collection | [lidarr.audio](https://lidarr.audio/) |
+| Navidrome | `services/navidrome.yml` | Music streaming | [navidrome.org](https://www.navidrome.org/) |
+| Nextcloud | `services/nextcloud.yml` | File sync/share | [nextcloud.com](https://nextcloud.com/) |
+| Ntfy | `services/ntfy.yml` | Push notifications | [ntfy.sh](https://ntfy.sh/) |
+| Ollama | `services/ollama.yml` | Local LLM runtime | [ollama.com](https://ollama.com/) |
+| Open WebUI | `services/openwebui.yml` | AI model chat UI | [openwebui.com](https://openwebui.com/) |
+| Radarr | `services/radarr.yml` | Movie collection | [radarr.video](https://radarr.video/) |
+| Sonarr | `services/sonarr.yml` | TV series collection | [sonarr.tv](https://sonarr.tv/) |
+| Uptime Kuma | `services/uptime-kuma.yml` | Monitoring | [uptime.kuma.pet](https://uptime.kuma.pet/) |
+| Vaultwarden | `services/vaultwarden.yml` | Password manager | [vaultwarden.net](https://vaultwarden.net/) |
+| Homepage | `services/homepage.yml` | Dashboard | [gethomepage.dev](https://gethomepage.dev/) |
+| Grafana | `services/grafana.yml` | Metrics visualization | [grafana.com](https://grafana.com/) |
+| Crafty | `services/crafty.yml` | Minecraft control panel | [craftycontrol.com](https://craftycontrol.com/) |
 
 ## Adding More Services
 
