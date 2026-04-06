@@ -1,0 +1,65 @@
+# Monitoring Stack Docker Compose
+# Prometheus + Loki for metrics and logs (optional)
+
+version: '3.8'
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    volumes:
+      - prometheus-data:/prometheus
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.prometheus.entryPoints=websecure"
+      - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.routers.prometheus.middlewares=keycloak-auth,security-headers"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  grafana-promtail:
+    image: grafana/promtail:3.2.1
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - ./config/promtail.yml:/etc/promtail/config.yml:ro
+    networks:
+      - proxy
+
+  loki:
+    image: grafana/loki:3.2.1
+    container_name: loki
+    restart: unless-stopped
+    volumes:
+      - loki-data:/loki
+      - ./config/loki-config.yml:/etc/loki/config.yml:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.rule=Host(`loki.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.loki.entryPoints=websecure"
+      - "traefik.http.routers.loki.tls=true"
+      - "traefik.http.routers.loki.middlewares=keycloak-auth,security-headers"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  prometheus-data:
+    name: prometheus-data
+  loki-data:
+    name: loki-data

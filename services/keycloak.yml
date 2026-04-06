@@ -25,6 +25,7 @@ services:
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.keycloak.entryPoints=websecure"
       - "traefik.http.routers.keycloak.tls=true"
+      - "traefik.http.routers.keycloak.middlewares=security-headers"
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
 
 networks:

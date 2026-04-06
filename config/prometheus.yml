@@ -1,0 +1,21 @@
+# Prometheus Configuration
+# Add scrape targets here
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Docker metrics
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Homelab services (add as needed)
+  # - job_name: 'homeassistant'
+  #   static_configs:
+  #     - targets: ['homeassistant:8123']

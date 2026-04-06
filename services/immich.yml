@@ -23,6 +23,7 @@ services:
       - TZ=America/Chicago
     networks:
       - immich
+      - proxy
     depends_on:
       immich-db:
         condition: service_healthy
@@ -57,9 +58,6 @@ services:
       - TZ=America/Chicago
     networks:
       - immich
-    depends_on:
-      - immich-db
-      - immich-redis
 
   immich-machine-learning:
     container_name: immich_machine_learning
@@ -77,8 +75,8 @@ services:
     networks:
       - immich
     depends_on:
-      - immich-db
-      - immich-redis
+      immich-db:
+        condition: service_healthy
 
   immich-db:
     container_name: immich-db
@@ -115,6 +113,9 @@ services:
 networks:
   immich:
     name: immich
+    driver: bridge
+  proxy:
+    external: true
 
 volumes:
   immich-upload:

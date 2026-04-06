@@ -1,0 +1,29 @@
+# Promtail Configuration
+# Ship logs to Loki
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 9081
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+positions:
+  filename: /tmp/positions.yaml
+
+scrape_configs:
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*-json.log
+
+  - job_name: homelab
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: homelab
+          __path__: /var/log/*.log

@@ -1,0 +1,29 @@
+# cAdvisor Docker Compose
+# Container metrics exporter for Prometheus
+
+version: '3.8'
+
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.51.0
+    container_name: cadvisor
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.cadvisor.entryPoints=websecure"
+      - "traefik.http.routers.cadvisor.tls=true"
+      - "traefik.http.routers.cadvisor.middlewares=keycloak-auth,security-headers"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true
