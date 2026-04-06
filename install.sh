@@ -761,9 +761,9 @@ install_service() {
     local temp_file=$(mktemp)
     env DOMAIN="${DOMAIN:-localhost}" HOMELAB_DIR="${HOMELAB_DIR}" envsubst < "$compose_file" > "$temp_file"
     
-    # Run docker compose with --remove-orphans to clean up orphaned containers
+    # Run docker compose with  to clean up orphaned containers
     cd "$SERVICE_DIR"
-    docker compose -f "$temp_file" up -d --remove-orphans
+    docker compose -f "$temp_file" up -d 
     
     rm -f "$temp_file"
     log_success "$service installed"
