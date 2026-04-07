@@ -137,6 +137,72 @@ prompt_admin_password() {
     fi
 }
 
+# Check for pre-flight conditions
+preflight_checks() {
+    log_info "Running pre-flight checks..."
+    
+    # Check docker group membership
+    if ! id -nG "$SUDO_USER" | grep -qw docker; then
+        log_warn "User $SUDO_USER is not in the docker group"
+        if confirm "Add $SUDO_USER to docker group?"; then
+            usermod -aG docker "$SUDO_USER" 2>/dev/null || true
+            log_success "User added to docker group"
+            log_info "You may need to log out and back in for changes to take effect"
+        else
+            log_error "Docker operations will fail without group membership"
+            exit 1
+        fi
+    fi
+    
+    # Check for port conflicts (common ones)
+    local conflicts=()
+    
+    # Check port 80
+    if ss -tlnp 2>/dev/null | grep -q ":80 "; then
+        conflicts+=("port 80 (HTTP)")
+    fi
+    
+    # Check port 443
+    if ss -tlnp 2>/dev/null | grep -q ":443 "; then
+        conflicts+=("port 443 (HTTPS)")
+    fi
+    
+    # Check port 53 (only if adguard selected)
+    if echo "$SELECTED_SERVICES" | grep -qw adguard; then
+        if ss -tlnp 2>/dev/null | grep -q ":53 "; then
+            conflicts+=("port 53 (DNS)")
+        fi
+    fi
+    
+    if [[ ${#conflicts[@]} -gt 0 ]]; then
+        log_warn "Port conflicts detected: ${conflicts[*]}"
+        if echo "$SELECTED_SERVICES" | grep -qw adguard; then
+            if confirm "Stop systemd-resolved to free port 53?"; then
+                systemctl stop systemd-resolved 2>/dev/null || true
+                systemctl disable systemd-resolved 2>/dev/null || true
+                log_success "systemd-resolved stopped"
+            fi
+        fi
+    fi
+    
+    log_success "Pre-flight checks passed"
+}
+
+# Check for pre-existing containers from a previous install
+check_existing_containers() {
+    log_info "Checking for existing containers..."
+    
+    local containers=$(docker ps -aq --filter "name=traefik" --filter "name=adguard" --filter "name=homepage" --filter "name=jellyfin" --filter "name=grafana" --filter "name=keycloak" 2>/dev/null | wc -l)
+    
+    if [[ $containers -gt 0 ]]; then
+        log_warn "Found existing containers from a previous installation"
+        if confirm "Remove existing containers and volumes?"; then
+            docker compose -f "$HOMELAB_DIR/docker-compose.yml" down -v 2>/dev/null || true
+            log_success "Cleaned up existing containers"
+        fi
+    fi
+}
+
 # Check if running as root
 check_root() {
     if [[ $EUID -ne 0 ]]; then
@@ -723,6 +789,9 @@ main() {
     else
         log_info "Docker already installed"
     fi
+
+    # Run pre-flight checks (docker group, port conflicts)
+    preflight_checks
 
     # Create proxy network if needed
     if ! docker network inspect proxy >/dev/null 2>&1; then
