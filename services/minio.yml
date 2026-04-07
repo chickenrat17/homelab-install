@@ -5,6 +5,7 @@
 services:
   minio:
     image: minio/minio:latest
+    command: server /data --console-address ":9001"
     container_name: minio
     restart: unless-stopped
     environment:

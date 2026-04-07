@@ -28,21 +28,11 @@ services:
       - "139:139"
       - "445:445"
     command: >
-      --share-name=homelab-media
-      --path=/mnt/media
-      --readonly=yes
-      --guests-only=yes
-      --share-name=homelab-photos
-      --path=/mnt/photos
-      --readonly=yes
-      --guests-only=yes
-      --share-name=homelab-backups
-      --path=/shares
-      --browsable=yes
-      --writable=yes
-      --guests-only=no
-      --username=homelab
-      --password=${SAMBA_PASSWORD:-changeme}
+      -s "homelab-media;/mnt/media;yes;yes;yes"
+      -s "homelab-photos;/mnt/photos;yes;yes;yes"
+      -s "homelab-backups;/shares;yes;no;no"
+      -u "homelab;${SAMBA_PASSWORD:-changeme}"
+      -w WORKGROUP
 
 networks:
   proxy:

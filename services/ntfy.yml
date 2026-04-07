@@ -5,6 +5,7 @@
 services:
   ntfy:
     image: jauderho/ntfy:latest
+    command: serve
     container_name: ntfy
     restart: unless-stopped
     environment:

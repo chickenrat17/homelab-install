@@ -6,7 +6,7 @@ services:
   immich:
     container_name: immich
     image: ghcr.io/immich-app/immich-server:v1.128.0
-    command: ['start.sh', 'immich']
+    command: ['immich']
     restart: unless-stopped
     ports:
       - "2283:3001"
@@ -39,7 +39,7 @@ services:
   immich-microservices:
     container_name: immich_microservices
     image: ghcr.io/immich-app/immich-server:v1.128.0
-    command: ['start.sh', 'microservices']
+    command: ['microservices']
     restart: unless-stopped
     depends_on:
       immich-db:
