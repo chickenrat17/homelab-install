@@ -28,7 +28,6 @@ services:
       - "139:139"
       - "445:445"
     command: >
-      --no[item]
       --share-name=homelab-media
       --path=/mnt/media
       --readonly=yes
