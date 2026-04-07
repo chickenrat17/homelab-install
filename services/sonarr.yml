@@ -19,7 +19,7 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.sonarr.rule=Host(\`sonarr.\${DOMAIN:-localhost}\`)"
+      - "traefik.http.routers.sonarr.rule=Host(\"sonarr.$${DOMAIN:-localhost}\")"
       - "traefik.http.routers.sonarr.entryPoints=websecure"
       - "traefik.http.routers.sonarr.tls=true"
       - "traefik.http.routers.sonarr.middlewares=security-headers"
