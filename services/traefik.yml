@@ -3,7 +3,7 @@
 
 services:
   traefik:
-    image: traefik:v3.0
+    image: traefik:v3.2
     container_name: traefik
     restart: unless-stopped
     security_opt:
@@ -27,14 +27,6 @@ services:
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-    healthcheck:
-      disable: true
-    # healthcheck:
-    #   test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:9090/api/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 10s
 
 networks:
   proxy:
