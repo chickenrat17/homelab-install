@@ -1,3 +1,6 @@
+# Traefik Docker Compose
+# Reverse proxy with automatic SSL
+
 services:
   traefik:
     image: traefik:v3.0
@@ -10,22 +13,22 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "9090:8080"
+      - "8080:8080"
     environment:
       - TZ=America/Chicago
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /home/hallmikey/homelab-install/config/traefik/traefik.yml:/traefik.yml:ro
-      - /home/hallmikey/homelab-install/config/traefik/acme.json:/acme.json
+      - traefik-config:/etc/traefik/dynamic:ro
       - traefik-log:/logs
-      - /home/hallmikey/homelab-install/config/traefik/dynamic:/etc/traefik/dynamic:ro
+      - traefik-config:/traefik.yml:ro
+      - traefik-config:/acme.json:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.services.traefik.loadbalancer.server.port=9090"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -38,3 +41,5 @@ networks:
 volumes:
   traefik-log:
     name: traefik-log
+  traefik-config:
+    external: true
