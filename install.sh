@@ -938,7 +938,7 @@ install_service() {
     
     # Run docker compose with  to clean up orphaned containers
     cd "$SERVICE_DIR"
-    docker compose -f "$temp_file" up -d --no-recreate 
+    docker compose -f "$temp_file" up -d 
     
     rm -f "$temp_file"
     
