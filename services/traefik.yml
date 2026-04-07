@@ -18,10 +18,10 @@ services:
       - TZ=America/Chicago
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik-config:/etc/traefik/dynamic:ro
+      - traefik-config:/etc/traefik/dynamic
       - traefik-log:/logs
-      - traefik-config:/traefik.yml:ro
-      - traefik-config:/acme.json:ro
+      - /home/hallmikey/homelab-install/config/traefik/traefik.yml:/traefik.yml:ro
+      - /home/hallmikey/homelab-install/config/traefik/acme.json:/acme.json:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
