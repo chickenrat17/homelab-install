@@ -31,7 +31,7 @@ services:
       -s "homelab-media;/mnt/media;yes;yes;yes"
       -s "homelab-photos;/mnt/photos;yes;yes;yes"
       -s "homelab-backups;/shares;yes;no;no"
-      -u "homelab;${SAMBA_PASSWORD:-changeme}"
+      -u "homelab;changeme"
       -w WORKGROUP
 
 networks:
