@@ -1,39 +1,25 @@
 # Keycloak Docker Compose
-# Identity and Access Management (IAM) solution
+# Identity provider
 
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0.6
+    image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
     restart: unless-stopped
-    command: start-dev
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "9000:9000"
     environment:
       - TZ=America/Chicago
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
-      - KC_DB=dev-file
     volumes:
-      - keycloak-data:/data
+      - keycloak-data:/opt/keycloak/data
     networks:
       - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.keycloak.rule=Host(`keycloak.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.keycloak.entryPoints=websecure"
-      - "traefik.http.routers.keycloak.tls=true"
-      - "traefik.http.routers.keycloak.middlewares=security-headers"
-      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
-    healthcheck:
-      test: ["CMD-SHELL", "cat /proc/1/status | grep -q java"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+
+volumes:
+  keycloak-data:
 
 networks:
   proxy:
     external: true
-
-volumes:
-  keycloak-data:
-    name: keycloak-data

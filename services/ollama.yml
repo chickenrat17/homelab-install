@@ -1,36 +1,23 @@
 # Ollama Docker Compose
 # Local AI model inference
 
-
 services:
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
     restart: unless-stopped
+    ports:
+      - "11434:11434"
     environment:
       - TZ=America/Chicago
     volumes:
       - ollama-data:/root/.ollama
     networks:
       - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.ollama.rule=Host(`ollama.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.ollama.entryPoints=websecure"
-      - "traefik.http.routers.ollama.tls=true"
-      - "traefik.http.routers.ollama.middlewares=security-headers"
-      - "traefik.http.services.ollama.loadbalancer.server.port=11434"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+
+volumes:
+  ollama-data:
 
 networks:
   proxy:
     external: true
-
-volumes:
-  ollama-data:
-    name: ollama-data
