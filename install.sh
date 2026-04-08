@@ -1037,5 +1037,4 @@ install_selected_services() {
 }
 
 # Run main
-main "$@"# Source the service registry for stage arrays
-source "$SERVICE_DIR/registry.sh" 2>/dev/null || true
+main "$@"
