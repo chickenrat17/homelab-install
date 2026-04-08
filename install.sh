@@ -1037,4 +1037,4 @@ install_selected_services() {
 }
 
 # Run main
-main "$@"
+main "$@"# Preflight validation function added 2026-04-07
