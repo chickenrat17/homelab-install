@@ -14,7 +14,22 @@ services:
       - proxy
     labels:
       - "traefik.enable=false"
-
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:2019/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 networks:
   proxy:
     external: true
