@@ -783,6 +783,7 @@ main() {
     check_root
     detect_os
 
+    preflight_check
     # Install Docker if needed
     if ! command -v docker &> /dev/null; then
         install_docker
@@ -1038,3 +1039,33 @@ install_selected_services() {
 
 # Run main
 main "$@"# Preflight validation function added 2026-04-07
+
+preflight_check() {
+    log_info "Running preflight checks..."
+    
+    if ! command -v docker  &>/dev/null; then
+        log_error "Docker is not installed"
+        exit 1
+    fi
+    
+    if ! docker info  &>/dev/null; then
+        log_error "Docker daemon is not running"
+        exit 1
+    fi
+    
+    if [[ ! -f "$SERVICE_DIR/registry.sh" ]]; then
+        log_error "Service registry not found: $SERVICE_DIR/registry.sh"
+        exit 1
+    fi
+    
+    source "$SERVICE_DIR/registry.sh"
+    
+    for service in "${DEFAULT_SELECTED[@]}"; do
+        if [[ -z "${SERVICE_REGISTRY[$service]+isset}" ]]; then
+            log_error "Service $service not found in registry"
+            exit 1
+        fi
+    done
+    
+    log_success "Preflight checks passed"
+}
