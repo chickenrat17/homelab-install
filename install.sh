@@ -287,6 +287,49 @@ install_portainer() {
     log_success "Portainer installed at https://$(hostname -I | awk '{print $1}'):9443"
 }
 
+install_tailscale() {
+    log_info "Installing Tailscale on host system..."
+    
+    # Check if Tailscale auth key is set
+    if [[ -z "$TAILSCALE_AUTHKEY" ]]; then
+        log_info "Tailscale requires an auth key for installation."
+        log_info "To get an auth key, visit: https://login.tailscale.com/settings/key"
+        log_info "Create a key with 'Reusable' and 'Auto-approval' enabled for easiest setup."
+        echo ""
+        read -p "Enter your Tailscale auth key (or press Enter to skip): " TAILSCALE_AUTHKEY
+        echo ""
+        
+        if [[ -z "$TAILSCALE_AUTHKEY" ]]; then
+            log_warn "Tailscale installation skipped - no auth key provided"
+            return 1
+        fi
+    fi
+    
+    # Install Tailscale on the host
+    curl -fsSL https://tailscale.com/install.sh | sh
+    
+    # Start Tailscale with auth key
+    tailscale up --authkey="$TAILSCALE_AUTHKEY" --accept-routes
+    
+    log_success "Tailscale installed and connected"
+    log_info "Check Tailscale status with: tailscale status"
+    log_info "Manage Tailscale at: https://login.tailscale.com"
+}
+
+# Prompt for tailscale installation
+prompt_tailscale() {
+    echo ""
+    log_info "Tailscale provides secure, passwordless SSH and site-to-site networking."
+    log_info "It installs directly on the host and allows you to access your homelab from anywhere securely."
+    log_info "It also enables route advertisement so other devices on your network can be accessed via Tailscale."
+    echo ""
+    
+    if confirm "Would you like to install Tailscale?"; then
+        install_tailscale
+    else
+        log_info "Tailscale installation skipped"
+    fi
+}
 
 install_caddy() {
     log_info "Caddy reverse proxy disabled - services use direct ports"
@@ -301,7 +344,7 @@ install_caddy() {
 # Services are installed in stages to ensure proper dependencies
 
 # Stage 1: Core (prerequisites - always installed first)
-STAGE1_CORE=("docker" "portainer")
+STAGE1_CORE=("docker" "portainer" "tailscale")
 
 # Stage 2: Authentication (Identity provider - early for auth needs)
 STAGE2_AUTH=("keycloak")
@@ -718,6 +761,9 @@ main() {
     else
         log_info "Portainer already installed"
     fi
+    
+    # Prompt for Tailscale installation (after core services, before authentication)
+    prompt_tailscale
     
     
     # Service selection
