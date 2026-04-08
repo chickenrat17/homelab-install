@@ -1,0 +1,25 @@
+# Prowlarr Docker Compose
+# Media request manager
+
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    restart: unless-stopped
+    ports:
+      - "9696:9696"
+    environment:
+      - TZ=America/Chicago
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - prowlarr-data:/config
+    networks:
+      - proxy
+
+volumes:
+  prowlarr-data:
+
+networks:
+  proxy:
+    external: true
