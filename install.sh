@@ -192,7 +192,7 @@ preflight_checks() {
 check_existing_containers() {
     log_info "Checking for existing containers..."
     
-    local containers=$(docker ps -aq --filter "name=traefik" --filter "name=adguard" --filter "name=homepage" --filter "name=jellyfin" --filter "name=grafana" --filter "name=keycloak" 2>/dev/null | wc -l)
+    local containers=$(docker ps -aq --filter "name=caddy" --filter "name=adguard" --filter "name=homepage" --filter "name=jellyfin" --filter "name=grafana" --filter "name=keycloak" 2>/dev/null | wc -l)
     
     if [[ $containers -gt 0 ]]; then
         log_warn "Found existing containers from a previous installation"
@@ -287,40 +287,39 @@ install_portainer() {
     log_success "Portainer installed at https://$(hostname -I | awk '{print $1}'):9443"
 }
 
-install_traefik() {
-    log_info "Installing Traefik..."
+install_caddy() {
+    log_info "Installing Caddy reverse proxy..."
     
-    # Create traefik directory
-    mkdir -p "$CONFIG_DIR/traefik"
+    # Create caddy directory
+    mkdir -p "$CONFIG_DIR/caddy"
     
-    # Create docker-compose.yml for Traefik
-    cat > "$CONFIG_DIR/traefik/docker-compose.yml" << 'EOF'
+    # Create docker-compose.yml for Caddy
+    cat > "$CONFIG_DIR/caddy/docker-compose.yml" << 'EOF'
 services:
-  traefik:
-    image: traefik:v3.0
-    container_name: traefik
+  caddy:
+    image: caddy:2
+    container_name: caddy
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     networks:
       - proxy
     ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
+      - "8080:80"
+      - "8443:443"
     environment:
       - TZ=America/Chicago
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - $HOMELAB_DIR/config/traefik/traefik.yml:/traefik.yml:ro
-      - $HOMELAB_DIR/config/traefik/acme.json:/acme.json
-      - traefik-log:/logs
-      - $HOMELAB_DIR/config/traefik/dynamic:/etc/traefik/dynamic:ro
+      - $HOMELAB_DIR/config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - 
+      - caddy-data:/data:rw
+      - 
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      - "caddy.enable=false"
+      - "caddy.http.routers.dashboard.rule=Host(`caddy.${DOMAIN:-localhost}`)"
+      - "caddy.http.routers.dashboard.service=api@internal"
+      - "caddy.http.services.caddy.loadbalancer.server.port=8080"
     # Resource limits
     deploy:
       resources:
@@ -344,12 +343,12 @@ networks:
     external: true
 
 volumes:
-  traefik-log:
-    name: traefik-log
+  caddy-data:
+    name: caddy-data
 EOF
 
-    # Create traefik.yml config
-    cat > "$CONFIG_DIR/traefik/traefik.yml" << 'EOF'
+    # Create caddy.yml config
+    cat > "$CONFIG_DIR/caddy/Caddyfile" << 'EOF'
 api:
   dashboard: true
   insecure: true
@@ -371,11 +370,11 @@ providers:
     exposedByDefault: false
     network: proxy
   file:
-    directory: /etc/traefik/dynamic
+    directory: /etc/caddy/dynamic
 
 log:
   level: INFO
-  filePath: /logs/traefik.log
+  filePath: /logs/caddy.log
 
 certificatesResolvers:
   letsencrypt:
@@ -387,7 +386,7 @@ certificatesResolvers:
 EOF
 
     # Create dynamic middleware config
-    cat > "$CONFIG_DIR/traefik/dynamic/middleware.yml" << 'MIDDLEWARE'
+    cat > "$/middleware.yml" << 'MIDDLEWARE'
 http:
   middlewares:
     security-headers:
@@ -398,7 +397,7 @@ http:
         sslRedirect: true
         customRequestHeaders:
           X-Forwarded-Proto: "https"
-    # Basic auth for Traefik dashboard (optional, uncomment to enable)
+    # Caddy reverse proxy config (optional, uncomment to enable)
     # dashboard-auth:
     #   basicAuth:
     #     users:
@@ -406,17 +405,17 @@ http:
 MIDDLEWARE
     
     # Set permissions
-    touch "$CONFIG_DIR/traefik/acme.json"
-    chmod 600 "$CONFIG_DIR/traefik/acme.json"
+    touch "$"
+    chmod 600 "$"
     
     # Create dynamic config directory
-    mkdir -p "$CONFIG_DIR/traefik/dynamic"
+    mkdir -p "$"
     
-    # Run Traefik
-    cd "$CONFIG_DIR/traefik"
+    # Run Caddy
+    cd "$CONFIG_DIR/caddy"
     docker compose up -d
     
-    log_success "Traefik installed"
+    log_success "Caddy installed"
 }
 
 #######################################
@@ -427,7 +426,7 @@ MIDDLEWARE
 # Services are installed in stages to ensure proper dependencies
 
 # Stage 1: Core (prerequisites - always installed first)
-STAGE1_CORE=("docker" "portainer" "traefik")
+STAGE1_CORE=("docker" "portainer" "caddy")
 
 # Stage 2: Authentication (Identity provider - early for auth needs)
 STAGE2_AUTH=("keycloak")
@@ -474,7 +473,7 @@ ALL_STAGES=(
 declare -A DEPENDENCIES=(
     [jellyfin]="sonarr radarr"
     [jellyseerr]="sonarr radarr"
-    [homepage]="traefik"
+    [homepage]="caddy"
 )
 
 # Resolve dependencies for a service
@@ -540,7 +539,7 @@ log_stage() {
 
 # Service definitions
 declare -A SERVICES=(
-    ["traefik"]="Reverse proxy with automatic SSL"
+    ["caddy"]="Reverse proxy with automatic SSL"
     ["jellyfin"]="Media server for movies, TV, and music"
     ["plex"]="Media server (requires paid license)"
     ["immich"]="Photo and video backup with AI"
@@ -581,7 +580,7 @@ show_service_menu() {
     
     # Group services by category
     echo -e "${YELLOW}📡 Networking${NC}"
-    echo "  [ ] Traefik          - Reverse proxy with automatic SSL"
+    echo "  [ ] Caddy          - Reverse proxy (8080/8443)"
     echo "  [ ] AdGuard          - DNS-level ad blocking"
     echo ""
     echo -e "${YELLOW}🎬 Media${NC}"
@@ -635,7 +634,7 @@ select_services() {
     
     # Define services with category
     declare -a SERVICES=(
-        "traefik:Networking:Reverse proxy with automatic SSL"
+        "caddy:Networking:Reverse proxy with automatic SSL"
         "adguard:Networking:DNS-level ad blocking"
         "jellyfin:Media:Media server for movies, TV, and music"
         "immich:Media:Photo and video backup with AI"
@@ -670,7 +669,7 @@ select_services() {
     done
     
     # Default selected services (recommended for most homelabs)
-    SELECTED[0]=true   # traefik
+    SELECTED[0]=true   # caddy
     SELECTED[1]=true  # adguard (DNS for local .local domains)
     SELECTED[22]=true # homepage
     
@@ -753,7 +752,7 @@ select_mode() {
     echo ""
     echo "Select installation mode:"
     echo ""
-    echo "  1. Simple (Docker + Portainer + Traefik) - Recommended"
+    echo "  1. Simple (Docker + Portainer + Caddy) - Recommended"
     echo "  2. Advanced (K3s) - For experienced users"
     echo ""
     
@@ -845,11 +844,11 @@ main() {
         log_info "Portainer already installed"
     fi
     
-    # Install Traefik
-    if ! docker ps -a | grep -q traefik; then
-        install_traefik
+    # Install Caddy reverse proxy
+    if ! docker ps -a | grep -q caddy; then
+        install_caddy
     else
-        log_info "Traefik already installed"
+        log_info "Caddy already installed"
     fi
     
     # Service selection
@@ -871,9 +870,9 @@ main() {
     local ip=$(hostname -I | awk '{print $1}')
     echo "📍 Access points:"
     echo "   - Portainer:  https://${ip}:9443"
-    echo "   - Traefik:    http://${ip}:8080"
+    echo "   - Caddy:    http://${ip}:8080"
     
-    # Service ports (when not using Traefik)
+    # Service ports (direct access)
     declare -A SERVICE_PORTS=(
         [homepage]=3000
         [keycloak]=8080
@@ -1002,13 +1001,13 @@ install_selected_services() {
     echo -e "${YELLOW}Installing in dependency order...${NC}"
     echo ""
     
-    # Core always gets installed first (traefik via main(), not stage-based)
-    if is_service_selected "traefik"; then
-        if docker ps --format '{{.Names}}' | grep -q "^traefik$"; then
-            log_info "Traefik already installed"
+    # Core always gets installed first (caddy via main(), not stage-based)
+    if is_service_selected "caddy"; then
+        if docker ps --format '{{.Names}}' | grep -q "^caddy$"; then
+            log_info "Caddy already installed"
         else
             log_stage "1" "CORE SERVICES"
-            install_service "traefik"
+            install_service "caddy"
         fi
     fi
     
