@@ -1,0 +1,186 @@
+# Homelab Services
+# Services configured through Caddy reverse proxy (port 8080)
+# Server IP: 192.168.68.95
+
+- Homelab Services:
+    - Traefik:
+        href: http://192.168.68.95:8090
+        description: Reverse Proxy & Dashboard
+        icon: traefik.png
+        ping: http://192.168.68.95:8090/health
+    - Portainer:
+        href: http://192.168.68.95:8080/portainer
+        description: Container Management
+        icon: portainer.png
+        ping: http://192.168.68.95:8080/portainer
+    - Ollama:
+        href: http://192.168.68.95:8080/ollama
+        description: Local AI Models
+        icon: ollama.png
+        ping: http://192.168.68.95:8080/ollama
+    - Keycloak:
+        href: http://192.168.68.95:8080/keycloak
+        description: Identity Provider
+        icon: keycloak.png
+        ping: http://192.168.68.95:8080/keycloak
+    - Grafana:
+        href: http://192.168.68.95:8080/grafana
+        description: Metrics Dashboard
+        icon: grafana.png
+        ping: http://192.168.68.95:8080/grafana
+    - AdGuard:
+        href: http://192.168.68.95:8080/adguard
+        description: DNS-level Ad Blocking
+        icon: adguard.png
+        ping: http://192.168.68.95:8080/adguard
+    - Authelia:
+        href: http://192.168.68.95:8080/authelia
+        description: 2FA & SSO
+        icon: authelia.png
+        ping: http://192.168.68.95:8080/authelia
+    - Nextcloud:
+        href: http://192.168.68.95:8080/nextcloud
+        description: Files & Documents
+        icon: nextcloud.png
+        ping: http://192.168.68.95:8080/nextcloud
+    - MinIO:
+        href: http://192.168.68.95:8080/minio
+        description: S3 Storage
+        icon: minio.png
+        ping: http://192.168.68.95:8080/minio
+
+- Media:
+    - Jellyfin:
+        href: http://192.168.68.95:8080/jellyfin
+        description: Media Server
+        icon: jellyfin.png
+        ping: http://192.168.68.95:8080/jellyfin
+    - Sonarr:
+        href: http://192.168.68.95:8080/sonarr
+        description: TV Show Management
+        icon: sonarr.png
+        ping: http://192.168.68.95:8080/sonarr
+    - Radarr:
+        href: http://192.168.68.95:8080/radarr
+        description: Movie Management
+        icon: radarr.png
+        ping: http://192.168.68.95:8080/radarr
+    - Lidarr:
+        href: http://192.168.68.95:8080/lidarr
+        description: Music Management
+        icon: lidarr.png
+        ping: http://192.168.68.95:8080/lidarr
+    - Jellyseerr:
+        href: http://192.168.68.95:8080/jellyseerr
+        description: Media Requests
+        icon: jellyseerr.png
+        ping: http://192.168.68.95:8080/jellyseerr
+        widgets:
+            - type: jellyseerr
+    - Calibre:
+        href: http://192.168.68.95:8080/calibre
+        description: Ebook Management
+        icon: calibre.png
+        ping: http://192.168.68.95:8080/calibre
+    - Navidrome:
+        href: http://192.168.68.95:8080/navidrome
+        description: Music Streaming
+        icon: navidrome.png
+        ping: http://192.168.68.95:8080/navidrome
+    - Paperless:
+        href: http://192.168.68.95:8080/paperless
+        description: Document Management
+        icon: paperless.png
+        ping: http://192.168.68.95:8080/paperless
+    - Samba:
+        href: http://192.168.68.95:8080/samba
+        description: Network File Sharing
+        icon: samba.png
+        ping: http://192.168.68.95:8080/samba
+    - Syncthing:
+        href: http://192.168.68.95:8080/syncthing
+        description: File Synchronization
+        icon: syncthing.png
+        ping: http://192.168.68.95:8080/syncthing
+
+- Monitoring:
+    - UptimeKuma:
+        href: http://192.168.68.95:8080/uptime-kuma
+        description: Uptime Monitoring
+        icon: uptimekuma.png
+        ping: http://192.168.68.95:8080/uptime-kuma
+    - Grafana:
+        href: http://192.168.68.95:8080/grafana
+        description: Metrics Dashboard
+        icon: grafana.png
+        ping: http://192.168.68.95:8080/grafana
+    - Ntfy:
+        href: http://192.168.68.95:8080/ntfy
+        description: Push Notifications
+        icon: ntfy.png
+        ping: http://192.168.68.95:8080/ntfy
+
+- Security:
+    - Vaultwarden:
+        href: http://192.168.68.95:8080/vaultwarden
+        description: Password Manager
+        icon: vaultwarden.png
+        ping: http://192.168.68.95:8080/vaultwarden
+    - Pihole:
+        href: http://192.168.68.95:8080/pihole
+        description: DNS-level Ad Blocking
+        icon: pihole.png
+        ping: http://192.168.68.95:8080/pihole
+
+- Storage:
+    - Nextcloud:
+        href: http://192.168.68.95:8080/nextcloud
+        description: Files & Documents
+        icon: nextcloud.png
+        ping: http://192.168.68.95:8080/nextcloud
+    - MinIO:
+        href: http://192.168.68.95:8080/minio
+        description: S3 Storage
+        icon: minio.png
+        ping: http://192.168.68.95:8080/minio
+
+- AI:
+    - OpenWebUI:
+        href: http://192.168.68.95:8080/openwebui
+        description: AI Chat Interface
+        icon: openwebui.png
+        ping: http://192.168.68.95:8080/openwebui
+    - OpenClaw:
+        href: http://192.168.68.95:8080/openclaw
+        description: Homelab Assistant
+        icon: openclaw.png
+        ping: http://192.168.68.95:8080/openclaw
+    - Home Assistant:
+        href: http://192.168.68.95:8080/homeassistant
+        description: Smart Home Hub
+        icon: homeassistant.png
+        ping: http://192.168.68.95:8080/homeassistant
+
+- Game Servers:
+    - Crafty:
+        href: http://192.168.68.95:8080/crafty
+        description: Minecraft Manager
+        icon: crafty.png
+        ping: http://192.168.68.95:8080/crafty
+
+- Immich:
+    - Immich:
+        href: http://192.168.68.95:8080/immich
+        description: Photo & Video Backup
+        icon: immich.png
+        ping: http://192.168.68.95:8080/immich
+    - Immich DB:
+        href: http://192.168.68.95:8080/immich-db
+        description: Immich Database
+        icon: postgres.png
+        ping: http://192.168.68.95:8080/immich-db
+    - Immich Redis:
+        href: http://192.168.68.95:8080/immich-redis
+        description: Immich Redis Cache
+        icon: redis.png
+        ping: http://192.168.68.95:8080/immich-redis
