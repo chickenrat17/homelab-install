@@ -1,0 +1,31 @@
+# Traefik Dynamic Configuration
+# Labels for all services - this replaces Docker provider
+
+http:
+  routers:
+    # Traefik Dashboard
+    traefik-dashboard:
+      rule: "Host(`traefik.traefik.local`)"
+      service: traefik-api
+      entryPoints:
+        - websecure
+      tls: {}
+      
+    # Traefik API
+    traefik-api:
+      rule: "Host(`traefik.traefik.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      service: api@internal
+      entryPoints:
+        - websecure
+      tls: {}
+
+  services:
+    traefik-api:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:8080"
+        healthCheck:
+          path: "/health"
+
+    # Services from Docker containers (labels read from compose files)
+    # These will be auto-configured by file provider

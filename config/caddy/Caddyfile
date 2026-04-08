@@ -1,26 +1,29 @@
-# Caddyfile for Homelab
-# Auto-reload config, serve static files, proxy to services
+# Caddyfile for Homelab Standalone
+# Works without Traefik - uses container names on proxy network
 
 {
     auto_https off
+    log {
+        level INFO
+    }
 }
 
-# PiHole Admin - proxy to PiHole container
+http://localhost:8080 {
+    reverse_proxy http://homepage:3000
+}
+
+http://localhost:8090 {
+    reverse_proxy http://jellyfin:8096
+}
+
 http://localhost:8081 {
-    reverse_proxy http://192.168.68.95:8081
+    reverse_proxy http://pihole:8081
 }
 
-# Traefik Dashboard - proxy to Traefik container
-http://localhost:9090 {
-    reverse_proxy http://192.168.68.95:9090
+http://localhost:9443 {
+    reverse_proxy http://portainer:9443
 }
 
-# Caddy Admin API - proxy to Caddy's internal admin port
-http://localhost:2019 {
-    reverse_proxy http://localhost:2019
-}
-
-# Default response
-http:// {
-    respond "Caddy reverse proxy is running"
+http://localhost:11434 {
+    reverse_proxy http://ollama:11434
 }

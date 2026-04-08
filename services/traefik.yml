@@ -1,5 +1,5 @@
-# Traefik Docker Compose
-# Reverse proxy with automatic SSL
+# Traefik Docker Compose with File Provider Only
+# Avoids Docker API version conflicts by using file-based config
 
 services:
   traefik:
@@ -22,11 +22,16 @@ services:
       - traefik-log:/logs
       - /home/hallmikey/homelab-install/config/traefik/traefik.yml:/traefik.yml:ro
       - /home/hallmikey/homelab-install/config/traefik/acme.json:/acme.json:ro
+      - /home/hallmikey/homelab-install/config/traefik/services.yml:/etc/traefik/dynamic/services.yml:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    # File provider will read these labels from the mounted compose file
+    command:
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
 
 networks:
   proxy:
