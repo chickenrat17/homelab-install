@@ -1,5 +1,6 @@
 # Caddyfile for Homelab Standalone
 # Reverse proxy to services via container names on proxy network
+# Services mapped to unique ports for clean routing
 
 {
     auto_https off
@@ -8,62 +9,62 @@
     }
 }
 
-# Homepage - main dashboard (port 3000) - accessed via 8080
+# Homepage - main dashboard (port 3000)
 http://localhost:8080 {
     reverse_proxy http://homepage:3000
 }
 
-# Traefik Dashboard (when available) - accessed via 8090
+# Traefik Dashboard (when available) - different port
 http://localhost:8090 {
     reverse_proxy http://traefik:8080
 }
 
-# PiHole Admin - accessed via 8081
+# PiHole Admin - different port
 http://localhost:8081 {
     reverse_proxy http://pihole:8081
 }
 
-# Jellyfin - accessed via 8096
+# Jellyfin - different port
 http://localhost:8096 {
     reverse_proxy http://jellyfin:8096
 }
 
-# Keycloak - accessed via 8080 (different path)
-http://localhost:8080/keycloak* {
+# Keycloak - different port
+http://localhost:8082 {
     reverse_proxy http://keycloak:8080
 }
 
-# Nextcloud - accessed via 8080 (different path)
-http://localhost:8080/nextcloud* {
+# Nextcloud - different port
+http://localhost:8083 {
     reverse_proxy http://nextcloud:80
 }
 
-# Ollama - accessed via 11434
+# Ollama - different port
 http://localhost:11434 {
     reverse_proxy http://ollama:11434
 }
 
-# Portainer - accessed via 9443
+# Portainer - different port
 http://localhost:9443 {
     reverse_proxy http://portainer:9443
 }
 
-# Radarr - accessed via 7878
+# Radarr - different port
 http://localhost:7878 {
     reverse_proxy http://radarr:7878
 }
 
-# Sonarr - accessed via 8989
+# Sonarr - different port
 http://localhost:8989 {
     reverse_proxy http://sonarr:8989
 }
 
-# Uptime Kuma - accessed via 3001
+# Uptime Kuma - different port
 http://localhost:3001 {
     reverse_proxy http://uptime-kuma:3001
 }
 
-# Vaultwarden - accessed via 8000
+# Vaultwarden - different port
 http://localhost:8000 {
     reverse_proxy http://vaultwarden:8000
 }

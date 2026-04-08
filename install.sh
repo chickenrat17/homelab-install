@@ -287,135 +287,10 @@ install_portainer() {
     log_success "Portainer installed at https://$(hostname -I | awk '{print $1}'):9443"
 }
 
+
 install_caddy() {
-    log_info "Installing Caddy reverse proxy..."
-    
-    # Create caddy directory
-    mkdir -p "$CONFIG_DIR/caddy"
-    
-    # Create docker-compose.yml for Caddy
-    cat > "$CONFIG_DIR/caddy/docker-compose.yml" << 'EOF'
-services:
-  caddy:
-    image: caddy:2
-    container_name: caddy
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - proxy
-    ports:
-      - "8080:80"
-      - "8443:443"
-    environment:
-      - TZ=America/Chicago
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - $HOMELAB_DIR/config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - 
-      - caddy-data:/data:rw
-      - 
-    labels:
-      - "caddy.enable=false"
-      - "caddy.http.routers.dashboard.rule=Host(`caddy.${DOMAIN:-localhost}`)"
-      - "caddy.http.routers.dashboard.service=api@internal"
-      - "caddy.http.services.caddy.loadbalancer.server.port=8080"
-    # Resource limits
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 256M
-
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-networks:
-  proxy:
-    external: true
-
-volumes:
-  caddy-data:
-    name: caddy-data
-EOF
-
-    # Create caddy.yml config
-    cat > "$CONFIG_DIR/caddy/Caddyfile" << 'EOF'
-api:
-  dashboard: true
-  insecure: true
-
-entryPoints:
-  web:
-    address: ":80"
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
-  websecure:
-    address: ":443"
-
-providers:
-  docker:
-    endpoint: "unix:///var/run/docker.sock"
-    exposedByDefault: false
-    network: proxy
-  file:
-    directory: /etc/caddy/dynamic
-
-log:
-  level: INFO
-  filePath: /logs/caddy.log
-
-certificatesResolvers:
-  letsencrypt:
-    acme:
-      email: admin@example.com
-      storage: /acme.json
-      httpChallenge:
-        entryPoint: web
-EOF
-
-    # Create dynamic middleware config
-    cat > "$/middleware.yml" << 'MIDDLEWARE'
-http:
-  middlewares:
-    security-headers:
-      headers:
-        browserXssFilter: true
-        contentTypeNosniff: true
-        frameDeny: true
-        sslRedirect: true
-        customRequestHeaders:
-          X-Forwarded-Proto: "https"
-    # Caddy reverse proxy config (optional, uncomment to enable)
-    # dashboard-auth:
-    #   basicAuth:
-    #     users:
-    #       - "admin:$2a$12$abc123..."
-MIDDLEWARE
-    
-    # Set permissions
-    touch "$"
-    chmod 600 "$"
-    
-    # Create dynamic config directory
-    mkdir -p "$"
-    
-    # Run Caddy
-    cd "$CONFIG_DIR/caddy"
-    docker compose up -d
-    
-    log_success "Caddy installed"
+    log_info "Caddy reverse proxy disabled - services use direct ports"
+    return 0
 }
 
 #######################################
@@ -426,7 +301,7 @@ MIDDLEWARE
 # Services are installed in stages to ensure proper dependencies
 
 # Stage 1: Core (prerequisites - always installed first)
-STAGE1_CORE=("docker" "portainer" "caddy")
+STAGE1_CORE=("docker" "portainer")
 
 # Stage 2: Authentication (Identity provider - early for auth needs)
 STAGE2_AUTH=("keycloak")
@@ -473,7 +348,7 @@ ALL_STAGES=(
 declare -A DEPENDENCIES=(
     [jellyfin]="sonarr radarr"
     [jellyseerr]="sonarr radarr"
-    [homepage]="caddy"
+    # homepage has no dependencies in direct ports mode
 )
 
 # Resolve dependencies for a service
@@ -539,7 +414,7 @@ log_stage() {
 
 # Service definitions
 declare -A SERVICES=(
-    ["caddy"]="Reverse proxy with automatic SSL"
+    # Caddy disabled - services use direct ports
     ["jellyfin"]="Media server for movies, TV, and music"
     ["plex"]="Media server (requires paid license)"
     ["immich"]="Photo and video backup with AI"
@@ -634,7 +509,7 @@ select_services() {
     
     # Define services with category
     declare -a SERVICES=(
-        "caddy:Networking:Reverse proxy with automatic SSL"
+        # Caddy disabled - services use direct ports
         "adguard:Networking:DNS-level ad blocking"
         "jellyfin:Media:Media server for movies, TV, and music"
         "immich:Media:Photo and video backup with AI"
@@ -669,7 +544,7 @@ select_services() {
     done
     
     # Default selected services (recommended for most homelabs)
-    SELECTED[0]=true   # caddy
+    # Caddy disabled - services use direct ports
     SELECTED[1]=true  # adguard (DNS for local .local domains)
     SELECTED[22]=true # homepage
     
@@ -844,12 +719,6 @@ main() {
         log_info "Portainer already installed"
     fi
     
-    # Install Caddy reverse proxy
-    if ! docker ps -a | grep -q caddy; then
-        install_caddy
-    else
-        log_info "Caddy already installed"
-    fi
     
     # Service selection
     echo ""
@@ -870,9 +739,34 @@ main() {
     local ip=$(hostname -I | awk '{print $1}')
     echo "📍 Access points:"
     echo "   - Portainer:  https://${ip}:9443"
-    echo "   - Caddy:    http://${ip}:8080"
     
-    # Service ports (direct access)
+    echo "Services are now accessible via direct ports on the host IP:"
+    echo "   - Jellyfin:      http://${ip}:8096"
+    echo "   - Sonarr:        http://${ip}:8989"
+    echo "   - Radarr:        http://${ip}:7878"
+    echo "   - Lidarr:        http://${ip}:6246"
+    echo "   - Keycloak:      http://${ip}:8080"
+    echo "   - Jellyseerr:    http://${ip}:5055"
+    echo "   - Ollama:        http://${ip}:11434"
+    echo "   - OpenWebUI:     http://${ip}:8080"
+    echo "   - Grafana:       http://${ip}:3000"
+    echo "   - Vaultwarden:   http://${ip}:8080"
+    echo "   - Homepage:      http://${ip}:3000"
+    echo "   - Authelia:      http://${ip}:9091"
+    echo "   - AdGuard:       http://${ip}:3000"
+    echo "   - Uptime Kuma:   http://${ip}:3001"
+    echo "   - Nextcloud:     http://${ip}:8080"
+    echo "   - MinIO:         http://${ip}:9000"
+    echo "   - Syncthing:     http://${ip}:8384"
+    echo "   - Paperless:     http://${ip}:8000"
+    echo "   - Navidrome:     http://${ip}:4533"
+    echo "   - Calibre:       http://${ip}:8080"
+    echo "   - Audiobookshelf: http://${ip}:8081"
+    echo "   - Immich:        http://${ip}:3000"
+    echo "   - Authelia:      http://${ip}:9091"
+    echo "   - Vaultwarden:   http://${ip}:8080"
+    echo "   - Prometheus:    http://${ip}:9090"
+    echo "   - ntfy:          http://${ip}:8080"
     declare -A SERVICE_PORTS=(
         [homepage]=3000
         [keycloak]=8080
@@ -1001,15 +895,6 @@ install_selected_services() {
     echo -e "${YELLOW}Installing in dependency order...${NC}"
     echo ""
     
-    # Core always gets installed first (caddy via main(), not stage-based)
-    if is_service_selected "caddy"; then
-        if docker ps --format '{{.Names}}' | grep -q "^caddy$"; then
-            log_info "Caddy already installed"
-        else
-            log_stage "1" "CORE SERVICES"
-            install_service "caddy"
-        fi
-    fi
     
     # Stage 2: Auth (Keycloak)
     install_stage STAGE2_AUTH 2 "AUTHENTICATION"

@@ -2,13 +2,13 @@ api:
   dashboard: true
   insecure: true
 
+# Direct ports mode - services use their native ports
+# Removed 80/443 entry points as Caddy reverse proxy is disabled
 entryPoints:
-  web:
-    address: ":80"
-  websecure:
-    address: ":443"
   dashboard:
     address: ":9090"
+  # Add direct port entry points for services that need them
+  # Services will expose their own ports directly
 
 providers:
   file:
@@ -16,7 +16,8 @@ providers:
     watch: true
   docker:
     endpoint: "unix:///var/run/docker.sock"
-    exposedbydefault: false
+    exposedByDefault: false
+    network: proxy
 
 log:
   level: INFO

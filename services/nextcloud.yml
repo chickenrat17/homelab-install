@@ -1,5 +1,5 @@
 # Nextcloud Docker Compose
-# File sync and sharing
+# Files & Documents
 
 services:
   nextcloud:
@@ -7,7 +7,7 @@ services:
     container_name: nextcloud
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8083:80"
     environment:
       - TZ=America/Chicago
     volumes:

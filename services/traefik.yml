@@ -1,44 +1,5 @@
-# Traefik Docker Compose with File Provider Only
-# Avoids Docker API version conflicts by using file-based config
+# Traefik Docker Compose
+# Reverse proxy - REMOVED: Using direct ports instead
 
-services:
-  traefik:
-    image: traefik:v3.2
-    container_name: traefik
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - proxy
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
-    environment:
-      - TZ=America/Chicago
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik-config:/etc/traefik/dynamic
-      - traefik-log:/logs
-      - /home/hallmikey/homelab-install/config/traefik/traefik.yml:/traefik.yml:ro
-      - /home/hallmikey/homelab-install/config/traefik/acme.json:/acme.json:ro
-      - /home/hallmikey/homelab-install/config/traefik/services.yml:/etc/traefik/dynamic/services.yml:ro
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-    # File provider will read these labels from the mounted compose file
-    command:
-      - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--providers.file.watch=true"
-
-networks:
-  proxy:
-    external: true
-
-volumes:
-  traefik-log:
-    name: traefik-log
-  traefik-config:
-    external: true
+# Traefik v3.x has Docker API version conflicts
+# Not used - services accessible directly via published ports

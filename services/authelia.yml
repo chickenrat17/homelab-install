@@ -1,36 +1,24 @@
 # Authelia Docker Compose
-# 2FA & SSO portal
-
+# Two-factor authentication portal
 
 services:
   authelia:
     image: authelia/authelia:latest
     container_name: authelia
     restart: unless-stopped
+    ports:
+      - "80:80"
+      - "9091:9091"
     environment:
       - TZ=America/Chicago
     volumes:
       - authelia-config:/config
     networks:
       - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.authelia.rule=Host(`auth.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.authelia.entryPoints=websecure"
-      - "traefik.http.routers.authelia.tls=true"
-      - "traefik.http.routers.authelia.middlewares=security-headers"
-      - "traefik.http.services.authelia.loadbalancer.server.port=9091"
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9091/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+
+volumes:
+  authelia-config:
 
 networks:
   proxy:
     external: true
-
-volumes:
-  authelia-config:
-    name: authelia-config

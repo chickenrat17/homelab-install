@@ -1,31 +1,34 @@
-# Traefik Dynamic Configuration
-# Labels for all services - this replaces Docker provider
+# Direct Ports Configuration
+# This file documents the direct ports used by services
+# Caddy reverse proxy is disabled - services use direct ports
 
-http:
-  routers:
-    # Traefik Dashboard
-    traefik-dashboard:
-      rule: "Host(`traefik.traefik.local`)"
-      service: traefik-api
-      entryPoints:
-        - websecure
-      tls: {}
-      
-    # Traefik API
-    traefik-api:
-      rule: "Host(`traefik.traefik.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-      service: api@internal
-      entryPoints:
-        - websecure
-      tls: {}
+# Service ports (direct access from host):
+# - Jellyfin:      8096
+# - Sonarr:        8989
+# - Radarr:        7878
+# - Lidarr:        6246
+# - Keycloak:      8080
+# - Jellyseerr:    5055
+# - Ollama:        11434
+# - OpenWebUI:     8080
+# - Grafana:       3000
+# - Vaultwarden:   8080
+# - Homepage:      3000
+# - Authelia:      9091
+# - AdGuard:       3000
+# - Uptime Kuma:   3001
+# - Nextcloud:     8080
+# - MinIO:         9000
+# - Syncthing:     8384
+# - Paperless:     8000
+# - Navidrome:     4533
+# - Calibre:       8080
+# - Audiobookshelf: 8081
+# - Immich:        3000
+# - Prometheus:    9090
+# - ntfy:          8080
 
-  services:
-    traefik-api:
-      loadBalancer:
-        servers:
-          - url: "http://localhost:8080"
-        healthCheck:
-          path: "/health"
-
-    # Services from Docker containers (labels read from compose files)
-    # These will be auto-configured by file provider
+# Note: Services should expose their ports directly in docker-compose.yml
+# Example:
+# ports:
+#   - "8096:8096"  # Jellyfin

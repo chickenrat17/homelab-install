@@ -1,40 +1,24 @@
 # Homepage Docker Compose
-# Modern homelab dashboard
-
+# Main dashboard
 
 services:
   homepage:
-    image: ghcr.io/gethomepage/homepage:v1.0.4
+    image: ghcr.io/gethomepage/homepage:v0.10.4
     container_name: homepage
     restart: unless-stopped
+    ports:
+      - "3000:3000"
     environment:
       - TZ=America/Chicago
-      # Allow access from IP, localhost, and domain variants
-      - HOMEPAGE_ALLOWED_HOSTS=home.${DOMAIN:-localhost},localhost,${IP:-192.168.1.1}
     volumes:
-      - homepage-config:/config
-      - /home/hallmikey/homelab-install/config/homepage:/app/config
+      - homepage-config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.homepage.rule=Host(`home.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.homepage.entryPoints=web,websecure"
-      - "traefik.http.routers.homepage.tls=true"
-      - "traefik.http.routers.homepage.middlewares=security-headers"
-      - "traefik.http.services.homepage.loadbalancer.server.port=3000"
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
+
+volumes:
+  homepage-config:
 
 networks:
   proxy:
     external: true
-
-volumes:
-  homepage-config:
-    name: homepage-config

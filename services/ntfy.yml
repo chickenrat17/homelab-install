@@ -1,36 +1,24 @@
-# ntfy Docker Compose
-# Push notifications service
-
+# Ntfy Docker Compose
+# Push notifications
 
 services:
   ntfy:
-    image: jauderho/ntfy:latest
-    command: serve
+    image: binwiederhier/ntfy:latest
     container_name: ntfy
     restart: unless-stopped
+    ports:
+      - "80:80"
+      - "9090:8080"
     environment:
       - TZ=America/Chicago
     volumes:
-      - ntfy-cache:/var/cache/ntfy
       - ntfy-data:/var/lib/ntfy
     networks:
       - proxy
-    ports:
-      - "2586:80"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.ntfy.rule=Host(`ntfy.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.ntfy.entryPoints=web,websecure"
-      - "traefik.http.routers.ntfy.tls=true"
-      - "traefik.http.routers.ntfy.middlewares=security-headers"
-      - "traefik.http.services.ntfy.loadbalancer.server.port=80"
+
+volumes:
+  ntfy-data:
 
 networks:
   proxy:
     external: true
-
-volumes:
-  ntfy-cache:
-    name: ntfy-cache
-  ntfy-data:
-    name: ntfy-data

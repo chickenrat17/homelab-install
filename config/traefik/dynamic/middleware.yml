@@ -1,5 +1,14 @@
+# Middleware Configuration for Direct Ports Mode
+# Caddy reverse proxy is disabled - services use direct ports
+
+# Direct ports mode:
+# - No 80/443 reverse proxy
+# - Services expose their native ports directly
+# - Traefik is still available for services that need routing
+
 http:
   middlewares:
+    # Security headers middleware (optional, can be applied to individual services)
     security-headers:
       headers:
         browserXssFilter: true
@@ -16,3 +25,10 @@ http:
           X-Content-Type-Options: "nosniff"
           Referrer-Policy: "strict-origin-when-cross-origin"
           Permissions-Policy: "geolocation=(), midi=(), sync-xhr=(), microphone=(), camera=(), magnetometer=(), gyroscope=(), speaker=(), vibrate=(), fullscreen=(self)"
+
+    # Rate limiting (optional, for services that need it)
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1s

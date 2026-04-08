@@ -7,7 +7,7 @@ services:
     container_name: vaultwarden
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8001:80"
     environment:
       - TZ=America/Chicago
     volumes:

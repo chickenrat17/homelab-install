@@ -1,61 +1,23 @@
 # OpenClaw Docker Compose
-# Self-hosted AI agent for homelab operations
-
+# Homelab assistant
 
 services:
   openclaw:
     image: ghcr.io/openclaw/openclaw:latest
     container_name: openclaw
     restart: unless-stopped
+    ports:
+      - "80:80"
     environment:
       - TZ=America/Chicago
-      # Telegram bot - set BOT_TOKEN from @BotFather
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      # Or Discord bot token
-      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
-      # Storage for workspace and memory
-      - OPENCLAW_STORAGE=/workspace
     volumes:
-      # Workspace for files, configs, memory
-      - openclaw-workspace:/workspace
-      # Docker socket for container management
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      # SSH access (optional) - Mount SSH keys only if needed, otherwise leave commented
-      # - ~/.ssh:/home/openclaw/.ssh:ro
-      # Homelab services config (read-only for safety)
-      - ../services:/home/openclaw/homelab-install/services:ro
+      - openclaw-data:/app/data
     networks:
       - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.openclaw.rule=Host(`openclaw.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.openclaw.entryPoints=websecure"
-      - "traefik.http.routers.openclaw.tls=true"
-      - "traefik.http.routers.openclaw.middlewares=security-headers"
-      - "traefik.http.services.openclaw.loadbalancer.server.port=3000"
-    # Security: no-new-privileges prevents privilege escalation
-    security_opt:
-      - no-new-privileges:true
-    # Resource limits to prevent DoS
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+
+volumes:
+  openclaw-data:
 
 networks:
   proxy:
     external: true
-
-volumes:
-  openclaw-workspace:
-    name: openclaw-workspace

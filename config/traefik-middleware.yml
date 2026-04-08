@@ -1,12 +1,18 @@
-# Traefik Middleware Configuration
-# Centralized middleware definitions for Homelab services
+# Middleware Configuration for Direct Ports Mode
+# Caddy reverse proxy is disabled - services use direct ports
+
+# Direct ports mode:
+# - No 80/443 reverse proxy
+# - Services expose their native ports directly
+# - Traefik is still available for services that need routing
 
 http:
   middlewares:
     # Keycloak forward auth - protect services with Keycloak login
+    # Note: This may need adjustment in direct ports mode
     keycloak-auth:
-      forwardauth:
-        address: "http://keycloak:8080/realms/homelab/protocol/openid-connect/auth?client_id=traefik&redirect_uri=${TRAEFIK_URL}"
+      forwardAuth:
+        address: "http://keycloak:8080/realms/homelab/protocol/openid-connect/auth"
         trustForwardHeader: true
         authResponseHeaders:
           - "X-Forwarded-User"
@@ -23,7 +29,7 @@ http:
         customResponseHeaders:
           X-Robots-Tag: "noindex, nofollow"
 
-    # Rate limiting (optional)
+    # Rate limiting (optional, for services that need it)
     rate-limit:
       rateLimit:
         average: 100
