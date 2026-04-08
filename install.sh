@@ -919,6 +919,12 @@ install_service() {
     local service=$1
     local compose_file="$SERVICE_DIR/${service}.yml"
     
+    # Skip if already installed (idempotent rerun)
+    local current_state=$(get_service_state "$service")
+    if [[ "$current_state" == installed_* ]]; then
+        log_info "$service already installed (skipping)"
+        return 0
+    fi
     if [[ ! -f "$compose_file" ]]; then
         log_warn "No compose file for $service"
         return 1
@@ -954,6 +960,7 @@ install_service() {
     fi
     
     log_success "$service installed"
+    update_service_state "$service" "installed_$(date -Iseconds)"
 }
 
 # Install services by stage
@@ -1038,3 +1045,29 @@ install_selected_services() {
 
 # Run main
 main "$@"
+# State tracking for idempotent reruns
+update_service_state() {
+    local service=
+    local status=
+    
+    # Create state file if it doesn't exist
+    if [[ ! -f "" ]]; then
+        echo '{"services": {}}' > ""
+    fi
+    
+    # Update status using simple text file per service
+    local state_dir="/.state"
+    mkdir -p ""
+    echo "" > "/"
+}
+
+get_service_state() {
+    local service=
+    local state_dir="/.state"
+    if [[ -f "/" ]]; then
+        cat "/"
+    else
+        echo "not_installed"
+    fi
+}
+
