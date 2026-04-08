@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Service Menu Override - Replaces hardcoded menu with registry-driven menu
-# Source this file AFTER install.sh
+# Source this file AFTER install.sh to override show_service_menu
 #
 
 # Override show_service_menu to use registry
@@ -17,7 +17,7 @@ show_service_menu() {
     # Source the registry for service info
     source "$SERVICE_DIR/registry.sh" 2>/dev/null
     
-    # Helper to format service name
+    # Helper to format service name from snake_case to Title Case
     format_name() {
         echo "$1" | sed 's/-/ /g' | sed 's/\b\(.\)/\U\1/g'
     }
@@ -25,7 +25,7 @@ show_service_menu() {
     # Print services by category based on stage
     echo -e "${YELLOW}📡 Core${NC}"
     for svc in "${STAGE1_CORE[@]}"; do
-        [[ "$svc" == "traefik" ]] && echo "  [ ] $(format_name $svc)          - $(get_service_description $svc)"
+        [[ "$svc" != "docker" && "$svc" != "portainer" ]] && echo "  [ ] $(format_name $svc)          - $(get_service_description $svc)"
     done
     echo ""
     
@@ -36,7 +36,7 @@ show_service_menu() {
     echo ""
     
     echo -e "${YELLOW}🎬 Media${NC}"
-    for svc in "${STAGE4_MEDIA_SERVERS[@]}" "${STAGE3_MEDIA_ARR[@]}"; do
+    for svc in "${STAGE3_MEDIA_ARR[@]}" "${STAGE4_MEDIA_SERVERS[@]}"; do
         echo "  [ ] $(format_name $svc)          - $(get_service_description $svc)"
     done
     echo ""
@@ -61,6 +61,12 @@ show_service_menu() {
     
     echo -e "${YELLOW}🤖 AI${NC}"
     for svc in "${STAGE10_AI[@]}"; do
+        echo "  [ ] $(format_name $svc)          - $(get_service_description $svc)"
+    done
+    echo ""
+    
+    echo -e "${YELLOW}🖥️ Dashboard${NC}"
+    for svc in "${STAGE6_DASHBOARD[@]}"; do
         echo "  [ ] $(format_name $svc)          - $(get_service_description $svc)"
     done
     echo ""
